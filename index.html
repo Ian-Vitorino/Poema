@@ -467,6 +467,29 @@
         setTimeout(() => { overlay.style.display = 'none'; }, 500);
       });
 
+      // Sequência secreta para galeria: sol, estrela, estrela, estrela, lua
+      const gallerySequence = ['sol', 'estrela', 'estrela', 'estrela', 'lua'];
+      let galleryStep = 0;
+
+      document.querySelectorAll('.bottom-icons span').forEach(icon => {
+        icon.addEventListener('click', () => {
+          const clicked = icon.getAttribute('data-icon');
+
+          if (clicked === gallerySequence[galleryStep]) {
+            galleryStep++;
+            if (galleryStep === gallerySequence.length) {
+              galleryStep = 0;
+              window.location.href = 'galeria.html';
+            }
+          } else {
+            galleryStep = 0;
+            if (clicked === gallerySequence[0]) {
+              galleryStep = 1;
+            }
+          }
+        });
+      });
+
       function launchConfetti() {
         const colors = ['#4ecdc4', '#ff6b9d', '#ffd93d', '#6bcb77', '#a66cff', '#ff8fab', '#ffffff'];
         const total = 80;
