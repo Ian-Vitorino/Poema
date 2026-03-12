@@ -402,27 +402,27 @@
 
       verses.forEach((verse, i) => {
         setTimeout(() => {
-          verse.style.animation = `verseAppear 0.8s ease forwards`;
-        }, 1200 + i * 350);
+          verse.style.animation = `verseAppear 0.5s ease forwards`;
+        }, 500 + i * 150);
       });
 
       // Assinatura aparece depois de todos os versos
-      const signatureDelay = 1200 + verses.length * 350 + 500;
+      const signatureDelay = 500 + verses.length * 150 + 300;
       setTimeout(() => {
-        signature.style.animation = `fadeIn 1.2s ease forwards`;
+        signature.style.animation = `fadeIn 0.8s ease forwards`;
       }, signatureDelay);
 
       // Card de mensagem aparece depois da assinatura
       const messageCard = document.getElementById('messageCard');
       const bottomIcons = document.querySelector('.bottom-icons');
       setTimeout(() => {
-        messageCard.style.animation = `verseAppear 1.2s ease forwards`;
-      }, signatureDelay + 1500);
+        messageCard.style.animation = `verseAppear 0.8s ease forwards`;
+      }, signatureDelay + 600);
 
       // Ícones inferiores aparecem depois do card de mensagem
       setTimeout(() => {
-        bottomIcons.style.animation = `fadeIn 1.2s ease forwards`;
-      }, signatureDelay + 3000);
+        bottomIcons.style.animation = `fadeIn 0.8s ease forwards`;
+      }, signatureDelay + 1200);
 
       // Sequência secreta: sol, lua, sol, sol, estrela
       const secretSequence = ['sol', 'lua', 'sol', 'sol', 'estrela'];
@@ -467,26 +467,34 @@
         setTimeout(() => { overlay.style.display = 'none'; }, 500);
       });
 
-      // Sequência secreta para galeria: sol, estrela, estrela, estrela, lua
-      const gallerySequence = ['sol', 'estrela', 'estrela', 'estrela', 'lua'];
-      let galleryStep = 0;
+      // Sequências secretas dos ícones
+      const sequences = [
+        { combo: ['sol', 'estrela', 'estrela', 'estrela', 'lua'], url: 'galeria.html' },
+        { combo: ['sol', 'sol', 'lua'], url: 'poemas.html' },
+        { combo: ['sol', 'lua', 'sol', 'lua', 'estrela'], url: 'musicas.html' },
+        { combo: ['estrela', 'estrela', 'lua', 'lua', 'sol', 'sol', 'estrela', 'sol', 'lua'], url: 'trechos.html' },
+        { combo: ['estrela', 'sol', 'estrela', 'lua', 'estrela'], url: 'elogios.html' }
+      ];
+      let seqSteps = sequences.map(() => 0);
 
       document.querySelectorAll('.bottom-icons span').forEach(icon => {
         icon.addEventListener('click', () => {
           const clicked = icon.getAttribute('data-icon');
 
-          if (clicked === gallerySequence[galleryStep]) {
-            galleryStep++;
-            if (galleryStep === gallerySequence.length) {
-              galleryStep = 0;
-              window.location.href = 'galeria.html';
+          sequences.forEach((seq, i) => {
+            if (clicked === seq.combo[seqSteps[i]]) {
+              seqSteps[i]++;
+              if (seqSteps[i] === seq.combo.length) {
+                seqSteps[i] = 0;
+                window.location.href = seq.url;
+              }
+            } else {
+              seqSteps[i] = 0;
+              if (clicked === seq.combo[0]) {
+                seqSteps[i] = 1;
+              }
             }
-          } else {
-            galleryStep = 0;
-            if (clicked === gallerySequence[0]) {
-              galleryStep = 1;
-            }
-          }
+          });
         });
       });
 

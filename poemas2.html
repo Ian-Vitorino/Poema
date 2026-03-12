@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meus Poemas ❤️</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html {
+      overflow-x: hidden;
+    }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #0d1f15 0%, #0a2e1f 20%, #0d2137 50%, #0a1628 75%, #060e1e 100%);
+      padding: 40px 20px 0;
+    }
+
+    .container { position: relative; z-index: 2; max-width: 600px; margin: 0 auto; }
+
+    .page-title {
+      text-align: center;
+      font-family: 'Dancing Script', cursive;
+      color: #4ecdc4;
+      font-size: 2.8rem;
+      margin-bottom: 40px;
+      text-shadow: 0 0 30px rgba(78, 205, 196, 0.3);
+      opacity: 0;
+      animation: fadeDown 1s ease forwards;
+    }
+
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .poem-card-wrapper {
+      position: relative;
+      margin-bottom: 30px;
+    }
+
+    .poem-card {
+      position: relative;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(78, 205, 196, 0.15);
+      border-radius: 20px;
+      padding: 40px 35px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), inset 0 0 80px rgba(78, 205, 196, 0.03);
+      opacity: 0;
+      animation: cardAppear 0.8s ease forwards;
+      z-index: 2;
+    }
+
+    .poem-card-wrapper:nth-child(2) .poem-card { animation-delay: 0.2s; }
+    .poem-card-wrapper:nth-child(3) .poem-card { animation-delay: 0.4s; }
+    .poem-card-wrapper:nth-child(4) .poem-card { animation-delay: 0.6s; }
+    .poem-card-wrapper:nth-child(5) .poem-card { animation-delay: 0.8s; }
+    .poem-card-wrapper:nth-child(6) .poem-card { animation-delay: 1s; }
+
+    @keyframes cardAppear { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .poem-card h2 {
+      font-family: 'Dancing Script', cursive;
+      color: #4ecdc4;
+      font-size: 1.8rem;
+      text-align: center;
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+    }
+    .separator { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
+    .separator .line { width: 40px; height: 1px; background: linear-gradient(90deg, transparent, #4ecdc4, transparent); }
+    .separator .heart { color: #4ecdc4; font-size: 0.7rem; }
+    .poem-card p {
+      font-family: 'Lora', serif;
+      color: #c8dbe6;
+      font-size: 1.05rem;
+      line-height: 2;
+      text-align: center;
+      font-style: italic;
+    }
+
+    .back-btn {
+      display: block;
+      margin: 10px auto 0;
+      background: rgba(78, 205, 196, 0.15);
+      border: 1px solid rgba(78, 205, 196, 0.3);
+      color: #4ecdc4;
+      font-family: 'Lora', serif;
+      font-size: 1.1rem;
+      padding: 14px 40px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      text-align: center;
+      width: fit-content;
+    }
+    .back-btn:hover { background: rgba(78, 205, 196, 0.25); transform: translateY(-2px); }
+
+    .prev-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      margin: 0 auto 25px;
+      text-decoration: none;
+      cursor: pointer;
+      opacity: 0;
+      animation: fadeDown 1s ease forwards 0.3s;
+    }
+    .prev-text {
+      font-family: 'Lora', serif;
+      color: rgba(78, 205, 196, 0.6);
+      font-size: 1rem;
+      font-style: italic;
+    }
+    .prev-arrow {
+      color: #4ecdc4;
+      font-size: 1.4rem;
+      animation: bounceUp 1.5s ease-in-out infinite;
+    }
+    @keyframes bounceUp {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .prev-page:hover .prev-text { color: #4ecdc4; }
+    .prev-page:hover .prev-arrow { text-shadow: 0 0 10px rgba(78, 205, 196, 0.5); }
+
+    /* Wrapper do fundo do mar */
+    .ocean-floor-wrapper {
+      position: relative;
+      width: 100%;
+      height: 340px;
+      margin-top: -180px;
+      pointer-events: none;
+    }
+
+    /* Fundo do mar - camada de trás */
+    .ocean-floor-back {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 200px;
+      z-index: 0;
+    }
+    .ocean-floor-back svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Fundo do mar - camada da frente */
+    .ocean-floor-front {
+      position: absolute;
+      bottom: 0;
+      left: -5%;
+      width: 110%;
+      height: 340px;
+      z-index: 1;
+    }
+    .ocean-floor-front svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Peixes */
+    .fish-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .fish {
+      position: absolute;
+      opacity: 0.5;
+    }
+    .fish svg {
+      display: block;
+    }
+
+    .fish-right { left: -60px; }
+    .fish-left { right: -60px; }
+
+    .fish1 { top: 35%; animation: swimRight 22s linear -8s infinite; }
+    .fish2 { top: 50%; animation: swimLeft 28s linear -5s infinite; }
+    .fish3 { top: 65%; animation: swimRight 18s linear -12s infinite; }
+    .fish4 { top: 42%; animation: swimLeft 25s linear -18s infinite; }
+    .fish5 { top: 75%; animation: swimRight 30s linear -22s infinite; }
+    .fish6 { top: 38%; animation: swimLeft 24s linear -3s infinite; }
+    .fish7 { top: 55%; animation: swimRight 20s linear -15s infinite; }
+    .fish8 { top: 68%; animation: swimLeft 26s linear -9s infinite; }
+    .fish9 { top: 45%; animation: swimRight 19s linear -2s infinite; }
+    .fish10 { top: 60%; animation: swimLeft 23s linear -14s infinite; }
+    .fish11 { top: 33%; animation: swimRight 27s linear -20s infinite; }
+    .fish12 { top: 72%; animation: swimLeft 21s linear -7s infinite; }
+    .fish13 { top: 48%; animation: swimRight 25s linear -11s infinite; }
+    .fish14 { top: 58%; animation: swimLeft 22s linear -16s infinite; }
+    .fish15 { top: 40%; animation: swimRight 29s linear -4s infinite; }
+
+    /* Cardume + Tubarão */
+    .chase-group {
+      position: absolute;
+      top: 88%;
+      pointer-events: none;
+      z-index: 1;
+      animation: swimRight 26s linear -8s infinite;
+      left: -350px;
+    }
+    .shark-in-group {
+      position: absolute;
+      left: 0;
+      top: 8px;
+      opacity: 0.4;
+    }
+    .school-fish {
+      position: absolute;
+      opacity: 0.45;
+    }
+    .sf1 { left: 200px; top: 0; }
+    .sf2 { left: 220px; top: 18px; }
+    .sf3 { left: 240px; top: 6px; }
+    .sf4 { left: 255px; top: 22px; }
+    .sf5 { left: 270px; top: 10px; }
+    .sf6 { left: 290px; top: 2px; }
+    .sf7 { left: 285px; top: 20px; }
+    .sf8 { left: 310px; top: 14px; }
+
+    /* Peixes grandes */
+    .big-fish {
+      position: absolute;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.4;
+    }
+    .bf1 { top: 110%; left: -80px; animation: swimRight 20s linear -6s infinite; }
+    .bf2 { top: 120%; right: -80px; animation: swimLeft 24s linear -10s infinite; }
+    .bf3 { top: 130%; left: -80px; animation: swimRight 22s linear -16s infinite; }
+
+    /* Águas-vivas */
+    .jellyfish {
+      position: absolute;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.35;
+    }
+    .jf1 { top: 150%; left: 8%; animation: jellyFloat 12s ease-in-out -3s infinite; }
+    .jf2 { top: 165%; left: 55%; animation: jellyFloat 15s ease-in-out -8s infinite; }
+    .jf3 { top: 180%; left: 30%; animation: jellyFloat 10s ease-in-out -1s infinite; }
+    .jf4 { top: 155%; left: 78%; animation: jellyFloat 14s ease-in-out -6s infinite; }
+    .jf5 { top: 190%; left: 15%; animation: jellyFloat 13s ease-in-out -10s infinite; }
+    .jf6 { top: 170%; left: 90%; animation: jellyFloat 11s ease-in-out -4s infinite; }
+
+    @keyframes jellyFloat {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      25% { transform: translateY(-20px) translateX(5px); }
+      50% { transform: translateY(-8px) translateX(-8px); }
+      75% { transform: translateY(-25px) translateX(3px); }
+    }
+
+    @keyframes swimRight {
+      0% { left: -60px; }
+      100% { left: calc(100% + 60px); }
+    }
+    @keyframes swimLeft {
+      0% { right: -60px; }
+      100% { right: calc(100% + 60px); }
+    }
+
+    /* Submarino */
+    .submarine {
+      position: absolute;
+      top: 30px;
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 2;
+      left: -120px;
+      animation: subSwim 40s linear -15s infinite;
+    }
+    @keyframes subSwim {
+      0% { left: calc(100% + 120px); }
+      100% { left: -120px; }
+    }
+
+    /* Bolhas */
+    .bubbles-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 4;
+    }
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(78,205,196,0.18), rgba(78,205,196,0.04));
+      border: 1px solid rgba(78,205,196,0.1);
+      animation: bubbleRise linear infinite;
+    }
+    @keyframes bubbleRise {
+      0% { transform: translateY(0) translateX(0); opacity: 0.6; }
+      25% { transform: translateY(-500px) translateX(8px); }
+      50% { transform: translateY(-1000px) translateX(-6px); opacity: 0.4; }
+      75% { transform: translateY(-1500px) translateX(5px); }
+      100% { transform: translateY(-2000px) translateX(-3px); opacity: 0; }
+    }
+
+    @media (max-width: 480px) {
+      .page-title { font-size: 2rem; }
+      .poem-card { padding: 30px 20px; }
+      .poem-card h2 { font-size: 1.5rem; }
+      .poem-card p { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Bolhas -->
+  <div class="bubbles-layer" id="bubbles"></div>
+
+  <!-- Tubarão perseguindo cardume -->
+  <div class="chase-group">
+    <!-- Tubarão atrás -->
+    <div class="shark-in-group">
+      <svg width="120" height="50" viewBox="0 0 120 50">
+        <path d="M8,26 C12,18 28,12 50,14 C72,16 95,20 112,25 C95,30 72,34 50,36 C28,38 12,34 8,26 Z" fill="rgba(78,205,196,0.12)" stroke="rgba(78,205,196,0.18)" stroke-width="0.8"/>
+        <path d="M112,25 C116,24 120,25 116,26 Z" fill="rgba(78,205,196,0.15)"/>
+        <path d="M55,14 C52,2 62,0 65,14" fill="rgba(78,205,196,0.14)" stroke="rgba(78,205,196,0.18)" stroke-width="0.6"/>
+        <path d="M70,32 C65,42 58,46 62,36" fill="rgba(78,205,196,0.1)" stroke="rgba(78,205,196,0.14)" stroke-width="0.5"/>
+        <path d="M78,30 C76,40 70,44 72,34" fill="rgba(78,205,196,0.1)" stroke="rgba(78,205,196,0.14)" stroke-width="0.5"/>
+        <path d="M8,26 C4,18 2,10 0,8 C6,16 8,22 8,26 Z" fill="rgba(78,205,196,0.12)" stroke="rgba(78,205,196,0.16)" stroke-width="0.5"/>
+        <path d="M8,26 C4,34 2,40 0,44 C6,36 8,30 8,26 Z" fill="rgba(78,205,196,0.12)" stroke="rgba(78,205,196,0.16)" stroke-width="0.5"/>
+        <circle cx="100" cy="23" r="1.5" fill="rgba(78,205,196,0.3)"/>
+        <line x1="90" y1="22" x2="88" y2="28" stroke="rgba(78,205,196,0.1)" stroke-width="0.6"/>
+        <line x1="87" y1="21" x2="85" y2="28" stroke="rgba(78,205,196,0.1)" stroke-width="0.6"/>
+        <line x1="84" y1="21" x2="82" y2="28" stroke="rgba(78,205,196,0.1)" stroke-width="0.6"/>
+      </svg>
+    </div>
+    <!-- Cardume fugindo na frente -->
+    <div class="school-fish sf1"><svg width="16" height="9" viewBox="0 0 16 9"><path d="M1,4.5 C3,1 7,0 11,2 C13,3 15,4 15,4.5 C15,5 13,6 11,7 C7,9 3,8 1,4.5Z" fill="rgba(78,205,196,0.15)"/><path d="M0,4.5 L3,2.5 L3,6.5Z" fill="rgba(78,205,196,0.12)"/></svg></div>
+    <div class="school-fish sf2"><svg width="14" height="8" viewBox="0 0 14 8"><path d="M1,4 C2.5,1 6,0 9.5,1.5 C11.5,2.5 13,3.5 13,4 C13,4.5 11.5,5.5 9.5,6.5 C6,8 2.5,7 1,4Z" fill="rgba(78,205,196,0.13)"/><path d="M0,4 L2.5,2 L2.5,6Z" fill="rgba(78,205,196,0.1)"/></svg></div>
+    <div class="school-fish sf3"><svg width="15" height="8" viewBox="0 0 15 8"><path d="M1,4 C3,1 6.5,0 10,1.5 C12,2.5 14,3.5 14,4 C14,4.5 12,5.5 10,6.5 C6.5,8 3,7 1,4Z" fill="rgba(78,205,196,0.14)"/><path d="M0,4 L2.5,2 L2.5,6Z" fill="rgba(78,205,196,0.11)"/></svg></div>
+    <div class="school-fish sf4"><svg width="13" height="7" viewBox="0 0 13 7"><path d="M1,3.5 C2,1 5.5,0 8.5,1.5 C10,2.5 12,3 12,3.5 C12,4 10,5 8.5,5.5 C5.5,7 2,6 1,3.5Z" fill="rgba(78,205,196,0.12)"/><path d="M0,3.5 L2,2 L2,5Z" fill="rgba(78,205,196,0.09)"/></svg></div>
+    <div class="school-fish sf5"><svg width="14" height="8" viewBox="0 0 14 8"><path d="M1,4 C2.5,1 6,0 9.5,1.5 C11.5,2.5 13,3.5 13,4 C13,4.5 11.5,5.5 9.5,6.5 C6,8 2.5,7 1,4Z" fill="rgba(78,205,196,0.15)"/><path d="M0,4 L2.5,2 L2.5,6Z" fill="rgba(78,205,196,0.12)"/></svg></div>
+    <div class="school-fish sf6"><svg width="12" height="7" viewBox="0 0 12 7"><path d="M1,3.5 C2,1 5,0 8,1.5 C9.5,2.5 11,3 11,3.5 C11,4 9.5,5 8,5.5 C5,7 2,6 1,3.5Z" fill="rgba(78,205,196,0.11)"/><path d="M0,3.5 L2,2 L2,5Z" fill="rgba(78,205,196,0.08)"/></svg></div>
+    <div class="school-fish sf7"><svg width="13" height="7" viewBox="0 0 13 7"><path d="M1,3.5 C2,1 5.5,0 8.5,1.5 C10,2.5 12,3 12,3.5 C12,4 10,5 8.5,5.5 C5.5,7 2,6 1,3.5Z" fill="rgba(78,205,196,0.13)"/><path d="M0,3.5 L2,2 L2,5Z" fill="rgba(78,205,196,0.1)"/></svg></div>
+    <div class="school-fish sf8"><svg width="14" height="8" viewBox="0 0 14 8"><path d="M1,4 C2.5,1 6,0 9.5,1.5 C11.5,2.5 13,3.5 13,4 C13,4.5 11.5,5.5 9.5,6.5 C6,8 2.5,7 1,4Z" fill="rgba(78,205,196,0.12)"/><path d="M0,4 L2.5,2 L2.5,6Z" fill="rgba(78,205,196,0.09)"/></svg></div>
+  </div>
+
+  <!-- Águas-vivas -->
+  <div class="jellyfish jf1">
+    <svg width="40" height="55" viewBox="0 0 40 55">
+      <path d="M5,18 C5,6 35,6 35,18 C35,22 30,24 28,22 C26,20 24,24 20,22 C16,24 14,20 12,22 C10,24 5,22 5,18Z" fill="rgba(160,120,200,0.2)" stroke="rgba(160,120,200,0.25)" stroke-width="0.6"/>
+      <path d="M10,24 C8,32 12,40 10,48" fill="none" stroke="rgba(160,120,200,0.15)" stroke-width="0.8"/>
+      <path d="M16,23 C18,34 14,42 17,52" fill="none" stroke="rgba(160,120,200,0.12)" stroke-width="0.7"/>
+      <path d="M24,23 C22,35 26,43 23,53" fill="none" stroke="rgba(160,120,200,0.12)" stroke-width="0.7"/>
+      <path d="M30,24 C32,33 28,41 31,50" fill="none" stroke="rgba(160,120,200,0.15)" stroke-width="0.8"/>
+    </svg>
+  </div>
+  <div class="jellyfish jf2">
+    <svg width="50" height="68" viewBox="0 0 50 68">
+      <path d="M6,22 C6,7 44,7 44,22 C44,27 38,30 35,27 C32,24 28,28 25,26 C22,28 18,24 15,27 C12,30 6,27 6,22Z" fill="rgba(140,180,210,0.18)" stroke="rgba(140,180,210,0.22)" stroke-width="0.6"/>
+      <path d="M12,30 C10,40 14,50 11,60" fill="none" stroke="rgba(140,180,210,0.12)" stroke-width="0.8"/>
+      <path d="M20,28 C22,42 18,52 21,65" fill="none" stroke="rgba(140,180,210,0.1)" stroke-width="0.7"/>
+      <path d="M30,28 C28,43 32,53 29,66" fill="none" stroke="rgba(140,180,210,0.1)" stroke-width="0.7"/>
+      <path d="M38,30 C40,41 36,51 39,62" fill="none" stroke="rgba(140,180,210,0.12)" stroke-width="0.8"/>
+      <path d="M25,28 C25,38 25,48 24,58" fill="none" stroke="rgba(140,180,210,0.08)" stroke-width="0.6"/>
+    </svg>
+  </div>
+  <div class="jellyfish jf3">
+    <svg width="35" height="48" viewBox="0 0 35 48">
+      <path d="M4,15 C4,5 31,5 31,15 C31,19 27,21 25,19 C23,17 19,20 17,18 C15,20 11,17 9,19 C7,21 4,19 4,15Z" fill="rgba(170,130,190,0.2)" stroke="rgba(170,130,190,0.24)" stroke-width="0.6"/>
+      <path d="M9,21 C7,28 10,35 8,42" fill="none" stroke="rgba(170,130,190,0.14)" stroke-width="0.7"/>
+      <path d="M17,20 C18,30 15,37 17,46" fill="none" stroke="rgba(170,130,190,0.11)" stroke-width="0.6"/>
+      <path d="M25,21 C27,29 24,36 26,44" fill="none" stroke="rgba(170,130,190,0.14)" stroke-width="0.7"/>
+    </svg>
+  </div>
+  <div class="jellyfish jf4">
+    <svg width="45" height="62" viewBox="0 0 45 62">
+      <path d="M5,20 C5,7 40,7 40,20 C40,25 35,27 32,24 C29,21 26,25 22,23 C18,25 15,21 12,24 C9,27 5,25 5,20Z" fill="rgba(150,140,210,0.18)" stroke="rgba(150,140,210,0.22)" stroke-width="0.6"/>
+      <path d="M11,27 C9,36 13,45 10,55" fill="none" stroke="rgba(150,140,210,0.13)" stroke-width="0.8"/>
+      <path d="M18,25 C20,38 16,47 19,58" fill="none" stroke="rgba(150,140,210,0.1)" stroke-width="0.6"/>
+      <path d="M27,25 C25,39 29,47 26,59" fill="none" stroke="rgba(150,140,210,0.1)" stroke-width="0.6"/>
+      <path d="M34,27 C36,37 32,46 35,56" fill="none" stroke="rgba(150,140,210,0.13)" stroke-width="0.8"/>
+    </svg>
+  </div>
+  <div class="jellyfish jf5">
+    <svg width="32" height="44" viewBox="0 0 32 44">
+      <path d="M4,14 C4,4 28,4 28,14 C28,18 24,20 22,18 C20,16 18,19 16,17 C14,19 12,16 10,18 C8,20 4,18 4,14Z" fill="rgba(180,140,180,0.2)" stroke="rgba(180,140,180,0.24)" stroke-width="0.6"/>
+      <path d="M8,20 C7,27 9,33 7,40" fill="none" stroke="rgba(180,140,180,0.14)" stroke-width="0.7"/>
+      <path d="M16,19 C17,28 15,34 16,42" fill="none" stroke="rgba(180,140,180,0.11)" stroke-width="0.6"/>
+      <path d="M24,20 C25,28 23,34 25,41" fill="none" stroke="rgba(180,140,180,0.14)" stroke-width="0.7"/>
+    </svg>
+  </div>
+  <div class="jellyfish jf6">
+    <svg width="38" height="52" viewBox="0 0 38 52">
+      <path d="M4,17 C4,5 34,5 34,17 C34,21 30,23 27,21 C24,19 22,22 19,20 C16,22 13,19 10,21 C7,23 4,21 4,17Z" fill="rgba(140,160,200,0.18)" stroke="rgba(140,160,200,0.22)" stroke-width="0.6"/>
+      <path d="M9,23 C7,31 11,39 8,48" fill="none" stroke="rgba(140,160,200,0.13)" stroke-width="0.8"/>
+      <path d="M19,22 C20,33 17,41 19,50" fill="none" stroke="rgba(140,160,200,0.1)" stroke-width="0.6"/>
+      <path d="M28,23 C30,32 26,40 29,49" fill="none" stroke="rgba(140,160,200,0.13)" stroke-width="0.8"/>
+    </svg>
+  </div>
+
+  <!-- Peixes grandes -->
+  <div class="big-fish bf1">
+    <svg width="55" height="30" viewBox="0 0 55 30"><path d="M3,15 C8,4 20,0 35,5 C44,8 52,13 52,15 C52,17 44,22 35,25 C20,30 8,26 3,15Z" fill="rgba(78,205,196,0.12)" stroke="rgba(78,205,196,0.16)" stroke-width="0.7"/><path d="M0,15 L7,9 L7,21Z" fill="rgba(78,205,196,0.1)"/><circle cx="44" cy="13" r="1.8" fill="rgba(78,205,196,0.25)"/><path d="M22,5 C20,0 26,-2 28,5" fill="rgba(78,205,196,0.1)" stroke="rgba(78,205,196,0.13)" stroke-width="0.5"/></svg>
+  </div>
+  <div class="big-fish bf2">
+    <svg width="48" height="26" viewBox="0 0 48 26" style="transform:scaleX(-1)"><path d="M3,13 C7,3 18,0 30,4 C38,7 45,11 45,13 C45,15 38,19 30,22 C18,26 7,23 3,13Z" fill="rgba(100,180,170,0.1)" stroke="rgba(100,180,170,0.15)" stroke-width="0.7"/><path d="M0,13 L6,8 L6,18Z" fill="rgba(100,180,170,0.08)"/><circle cx="38" cy="11" r="1.5" fill="rgba(100,180,170,0.22)"/><path d="M18,4 C16,0 21,-1 23,4" fill="rgba(100,180,170,0.08)" stroke="rgba(100,180,170,0.12)" stroke-width="0.5"/></svg>
+  </div>
+  <div class="big-fish bf3">
+    <svg width="60" height="32" viewBox="0 0 60 32"><path d="M3,16 C9,4 22,0 38,5 C48,9 57,14 57,16 C57,18 48,23 38,27 C22,32 9,28 3,16Z" fill="rgba(78,205,196,0.1)" stroke="rgba(78,205,196,0.14)" stroke-width="0.7"/><path d="M0,16 L8,10 L8,22Z" fill="rgba(78,205,196,0.08)"/><circle cx="48" cy="14" r="2" fill="rgba(78,205,196,0.22)"/><path d="M24,5 C22,0 28,-2 30,5" fill="rgba(78,205,196,0.09)" stroke="rgba(78,205,196,0.12)" stroke-width="0.5"/></svg>
+  </div>
+
+  <!-- Peixes -->
+  <div class="fish-layer">
+    <div class="fish fish1 fish-right">
+      <svg width="32" height="18" viewBox="0 0 32 18"><path d="M2,9 C6,2 14,0 22,3 C26,5 30,8 30,9 C30,10 26,13 22,15 C14,18 6,16 2,9 Z" fill="rgba(78,205,196,0.15)"/><path d="M0,9 L6,5 L6,13 Z" fill="rgba(78,205,196,0.12)"/><circle cx="24" cy="8" r="1.2" fill="rgba(78,205,196,0.25)"/></svg>
+    </div>
+    <div class="fish fish2 fish-left">
+      <svg width="24" height="14" viewBox="0 0 24 14" style="transform:scaleX(-1)"><path d="M2,7 C5,1 10,0 16,2 C19,4 22,6 22,7 C22,8 19,10 16,12 C10,14 5,13 2,7 Z" fill="rgba(100,180,170,0.12)"/><path d="M0,7 L5,4 L5,10 Z" fill="rgba(100,180,170,0.1)"/><circle cx="17" cy="6" r="1" fill="rgba(100,180,170,0.2)"/></svg>
+    </div>
+    <div class="fish fish3 fish-right">
+      <svg width="20" height="12" viewBox="0 0 20 12"><path d="M2,6 C4,1 9,0 14,2 C17,3 18,5 18,6 C18,7 17,9 14,10 C9,12 4,11 2,6 Z" fill="rgba(78,205,196,0.13)"/><path d="M0,6 L4,3 L4,9 Z" fill="rgba(78,205,196,0.1)"/><circle cx="15" cy="5" r="0.8" fill="rgba(78,205,196,0.22)"/></svg>
+    </div>
+    <div class="fish fish4 fish-left">
+      <svg width="28" height="16" viewBox="0 0 28 16" style="transform:scaleX(-1)"><path d="M2,8 C5,2 12,0 20,3 C24,5 26,7 26,8 C26,9 24,11 20,13 C12,16 5,14 2,8 Z" fill="rgba(90,190,180,0.12)"/><path d="M0,8 L5,4 L5,12 Z" fill="rgba(90,190,180,0.1)"/><circle cx="21" cy="7" r="1.1" fill="rgba(90,190,180,0.2)"/></svg>
+    </div>
+    <div class="fish fish5 fish-right">
+      <svg width="18" height="10" viewBox="0 0 18 10"><path d="M1,5 C3,1 7,0 12,2 C14,3 16,4 16,5 C16,6 14,7 12,8 C7,10 3,9 1,5 Z" fill="rgba(78,205,196,0.1)"/><path d="M0,5 L3,3 L3,7 Z" fill="rgba(78,205,196,0.08)"/><circle cx="13" cy="4" r="0.7" fill="rgba(78,205,196,0.18)"/></svg>
+    </div>
+    <div class="fish fish6 fish-left">
+      <svg width="22" height="12" viewBox="0 0 22 12" style="transform:scaleX(-1)"><path d="M1,6 C4,1 9,0 15,2 C18,3 20,5 20,6 C20,7 18,9 15,10 C9,12 4,11 1,6Z" fill="rgba(90,195,185,0.12)"/><path d="M0,6 L4,3.5 L4,8.5Z" fill="rgba(90,195,185,0.1)"/><circle cx="16" cy="5" r="0.9" fill="rgba(90,195,185,0.2)"/></svg>
+    </div>
+    <div class="fish fish7 fish-right">
+      <svg width="20" height="11" viewBox="0 0 20 11"><path d="M1,5.5 C4,1 8,0 14,2 C17,3 19,5 19,5.5 C19,6 17,8 14,9 C8,11 4,10 1,5.5Z" fill="rgba(78,205,196,0.11)"/><path d="M0,5.5 L3.5,3 L3.5,8Z" fill="rgba(78,205,196,0.09)"/><circle cx="15" cy="4.5" r="0.8" fill="rgba(78,205,196,0.2)"/></svg>
+    </div>
+    <div class="fish fish8 fish-left">
+      <svg width="17" height="10" viewBox="0 0 17 10" style="transform:scaleX(-1)"><path d="M1,5 C3,1 7,0 11,2 C14,3 16,4.5 16,5 C16,5.5 14,7 11,8 C7,10 3,9 1,5Z" fill="rgba(85,200,190,0.13)"/><path d="M0,5 L3,3 L3,7Z" fill="rgba(85,200,190,0.1)"/><circle cx="12" cy="4" r="0.8" fill="rgba(85,200,190,0.22)"/></svg>
+    </div>
+    <div class="fish fish9 fish-right">
+      <svg width="24" height="13" viewBox="0 0 24 13"><path d="M1,6.5 C5,1 10,0 17,2.5 C20,4 22,6 22,6.5 C22,7 20,9 17,10.5 C10,13 5,12 1,6.5Z" fill="rgba(78,205,196,0.12)"/><path d="M0,6.5 L4,4 L4,9Z" fill="rgba(78,205,196,0.1)"/><circle cx="18" cy="5.5" r="1" fill="rgba(78,205,196,0.2)"/></svg>
+    </div>
+    <div class="fish fish10 fish-left">
+      <svg width="19" height="11" viewBox="0 0 19 11" style="transform:scaleX(-1)"><path d="M1,5.5 C3,1 8,0 13,2 C16,3 18,5 18,5.5 C18,6 16,8 13,9 C8,11 3,10 1,5.5Z" fill="rgba(95,190,180,0.11)"/><path d="M0,5.5 L3,3.5 L3,7.5Z" fill="rgba(95,190,180,0.09)"/><circle cx="14" cy="4.5" r="0.8" fill="rgba(95,190,180,0.2)"/></svg>
+    </div>
+    <div class="fish fish11 fish-right">
+      <svg width="16" height="9" viewBox="0 0 16 9"><path d="M1,4.5 C3,1 6,0 10,1.5 C13,2.5 15,4 15,4.5 C15,5 13,6.5 10,7.5 C6,9 3,8 1,4.5Z" fill="rgba(78,205,196,0.13)"/><path d="M0,4.5 L2.5,2.5 L2.5,6.5Z" fill="rgba(78,205,196,0.1)"/><circle cx="11" cy="4" r="0.7" fill="rgba(78,205,196,0.2)"/></svg>
+    </div>
+    <div class="fish fish12 fish-left">
+      <svg width="21" height="12" viewBox="0 0 21 12" style="transform:scaleX(-1)"><path d="M1,6 C4,1 9,0 14,2 C17,3.5 19,5.5 19,6 C19,6.5 17,8.5 14,10 C9,12 4,11 1,6Z" fill="rgba(80,200,188,0.12)"/><path d="M0,6 L3.5,3.5 L3.5,8.5Z" fill="rgba(80,200,188,0.1)"/><circle cx="15" cy="5" r="0.9" fill="rgba(80,200,188,0.2)"/></svg>
+    </div>
+    <div class="fish fish13 fish-right">
+      <svg width="18" height="10" viewBox="0 0 18 10"><path d="M1,5 C3,1 7,0 12,2 C14,3 16,4.5 16,5 C16,5.5 14,7 12,8 C7,10 3,9 1,5Z" fill="rgba(78,205,196,0.11)"/><path d="M0,5 L3,3 L3,7Z" fill="rgba(78,205,196,0.09)"/><circle cx="13" cy="4" r="0.8" fill="rgba(78,205,196,0.2)"/></svg>
+    </div>
+    <div class="fish fish14 fish-left">
+      <svg width="15" height="9" viewBox="0 0 15 9" style="transform:scaleX(-1)"><path d="M1,4.5 C2,1 6,0 10,1.5 C12,2.5 14,4 14,4.5 C14,5 12,6.5 10,7.5 C6,9 2,8 1,4.5Z" fill="rgba(88,198,188,0.12)"/><path d="M0,4.5 L2.5,2.5 L2.5,6.5Z" fill="rgba(88,198,188,0.09)"/><circle cx="11" cy="3.5" r="0.7" fill="rgba(88,198,188,0.2)"/></svg>
+    </div>
+    <div class="fish fish15 fish-right">
+      <svg width="23" height="13" viewBox="0 0 23 13"><path d="M1,6.5 C4,1 10,0 16,2.5 C19,4 21,6 21,6.5 C21,7 19,9 16,10.5 C10,13 4,12 1,6.5Z" fill="rgba(78,205,196,0.13)"/><path d="M0,6.5 L4,4 L4,9Z" fill="rgba(78,205,196,0.1)"/><circle cx="17" cy="5.5" r="1" fill="rgba(78,205,196,0.22)"/></svg>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1 class="page-title">Mais Poemas 💕</h1>
+
+    <a href="poemas.html" class="prev-page">
+      <span class="prev-arrow">↑</span>
+      <span class="prev-text">voltar aos anteriores</span>
+    </a>
+
+    <!-- Poema principal: 8 versos -->
+    <div class="poem-card-wrapper">
+      <div class="poem-card">
+        <h2>Título do Poema</h2>
+        <div class="separator"><span class="line"></span><span class="heart">♥</span><span class="line"></span></div>
+        <p>
+          Primeiro verso do poema aqui<br>
+          Segundo verso do poema aqui<br>
+          Terceiro verso do poema aqui<br>
+          Quarto verso do poema aqui<br><br>
+          Quinto verso do poema aqui<br>
+          Sexto verso do poema aqui<br>
+          Sétimo verso do poema aqui<br>
+          Oitavo verso do poema aqui
+        </p>
+      </div>
+    </div>
+
+    <!-- Poema curto 1 -->
+    <div class="poem-card-wrapper">
+      <div class="poem-card">
+        <h2>Título 1</h2>
+        <div class="separator"><span class="line"></span><span class="heart">♥</span><span class="line"></span></div>
+        <p>
+          Primeiro verso aqui<br>
+          Segundo verso aqui<br>
+          Terceiro verso aqui<br>
+          Quarto verso aqui
+        </p>
+      </div>
+    </div>
+
+    <!-- Poema curto 2 -->
+    <div class="poem-card-wrapper">
+      <div class="poem-card">
+        <h2>Título 2</h2>
+        <div class="separator"><span class="line"></span><span class="heart">♥</span><span class="line"></span></div>
+        <p>
+          Primeiro verso aqui<br>
+          Segundo verso aqui<br>
+          Terceiro verso aqui<br>
+          Quarto verso aqui
+        </p>
+      </div>
+    </div>
+
+    <!-- Poema curto 3 -->
+    <div class="poem-card-wrapper">
+      <div class="poem-card">
+        <h2>Título 3</h2>
+        <div class="separator"><span class="line"></span><span class="heart">♥</span><span class="line"></span></div>
+        <p>
+          Primeiro verso aqui<br>
+          Segundo verso aqui<br>
+          Terceiro verso aqui<br>
+          Quarto verso aqui
+        </p>
+      </div>
+    </div>
+
+    <!-- Poema curto 4 -->
+    <div class="poem-card-wrapper">
+      <div class="poem-card">
+        <h2>Título 4</h2>
+        <div class="separator"><span class="line"></span><span class="heart">♥</span><span class="line"></span></div>
+        <p>
+          Primeiro verso aqui<br>
+          Segundo verso aqui<br>
+          Terceiro verso aqui<br>
+          Quarto verso aqui
+        </p>
+      </div>
+    </div>
+
+    <a href="index.html" class="back-btn">← Voltar ao poema</a>
+  </div>
+
+  <!-- Fundo do mar -->
+  <div class="ocean-floor-wrapper">
+    <!-- Submarino -->
+    <div class="submarine">
+      <svg width="100" height="45" viewBox="0 0 100 45">
+        <ellipse cx="48" cy="28" rx="38" ry="14" fill="rgba(78,205,196,0.15)" stroke="rgba(78,205,196,0.25)" stroke-width="1"/>
+        <rect x="38" y="12" width="16" height="12" rx="3" fill="rgba(78,205,196,0.12)" stroke="rgba(78,205,196,0.2)" stroke-width="0.8"/>
+        <line x1="46" y1="12" x2="46" y2="4" stroke="rgba(78,205,196,0.2)" stroke-width="1.2"/>
+        <line x1="46" y1="4" x2="52" y2="4" stroke="rgba(78,205,196,0.2)" stroke-width="1.2"/>
+        <circle cx="30" cy="28" r="3" fill="rgba(78,205,196,0.08)" stroke="rgba(78,205,196,0.18)" stroke-width="0.7"/>
+        <circle cx="42" cy="28" r="3" fill="rgba(78,205,196,0.08)" stroke="rgba(78,205,196,0.18)" stroke-width="0.7"/>
+        <circle cx="54" cy="28" r="3" fill="rgba(78,205,196,0.08)" stroke="rgba(78,205,196,0.18)" stroke-width="0.7"/>
+        <line x1="86" y1="24" x2="92" y2="20" stroke="rgba(78,205,196,0.18)" stroke-width="1"/>
+        <line x1="86" y1="28" x2="92" y2="28" stroke="rgba(78,205,196,0.18)" stroke-width="1"/>
+        <line x1="86" y1="32" x2="92" y2="36" stroke="rgba(78,205,196,0.18)" stroke-width="1"/>
+        <path d="M10,22 L10,34" stroke="rgba(78,205,196,0.15)" stroke-width="1.2"/>
+      </svg>
+    </div>
+    <div class="ocean-floor-back">
+      <svg viewBox="0 0 1440 200" preserveAspectRatio="none">
+        <!-- Algas irregulares -->
+        <path d="M85,200 C83,185 90,170 82,155 C74,140 88,128 80,112 C72,96 86,85 78,72 C74,64 80,58 77,52" fill="none" stroke="rgba(20,80,50,0.5)" stroke-width="3"/>
+        <path d="M100,200 C104,178 95,162 102,145 C109,128 96,118 103,100 C110,82 98,70 105,55 C108,48 102,42 106,35" fill="none" stroke="rgba(25,90,55,0.4)" stroke-width="2.5"/>
+        <path d="M310,200 C306,180 320,168 308,148 C296,128 318,115 304,95 C296,82 312,72 300,58" fill="none" stroke="rgba(18,75,48,0.55)" stroke-width="4"/>
+        <path d="M325,200 C330,186 322,172 332,158 C342,144 326,132 336,118 C340,112 330,105 335,95" fill="none" stroke="rgba(22,85,52,0.35)" stroke-width="2"/>
+        <path d="M680,200 C675,175 690,160 678,138 C666,116 685,100 672,78 C665,65 680,50 670,35 C665,28 672,20 668,14" fill="none" stroke="rgba(20,78,50,0.45)" stroke-width="2.5"/>
+        <path d="M1050,200 C1045,182 1058,170 1042,155 C1030,142 1052,130 1038,118" fill="none" stroke="rgba(24,88,55,0.5)" stroke-width="5"/>
+        <path d="M1070,200 C1075,184 1065,170 1078,155 C1085,145 1072,135 1080,122 C1084,116 1076,108 1082,98" fill="none" stroke="rgba(20,80,50,0.38)" stroke-width="2.5"/>
+        <path d="M1340,200 C1335,178 1348,162 1332,140 C1320,122 1342,108 1328,88 C1322,78 1336,65 1325,50" fill="none" stroke="rgba(22,82,52,0.5)" stroke-width="3.5"/>
+        <path d="M1360,200 C1365,188 1355,175 1368,160 C1374,150 1360,140 1370,128" fill="none" stroke="rgba(18,72,45,0.4)" stroke-width="2"/>
+        <!-- Corais irregulares -->
+        <path d="M170,200 C168,188 175,180 170,170 C165,160 172,155 168,148" fill="none" stroke="rgba(100,45,60,0.45)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M170,170 C178,162 182,158 188,150" fill="none" stroke="rgba(100,45,60,0.4)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M170,170 C162,164 156,160 152,152" fill="none" stroke="rgba(100,45,60,0.35)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M168,148 C173,142 178,140 182,134" fill="none" stroke="rgba(100,45,60,0.3)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M168,148 C160,143 155,140 150,135" fill="none" stroke="rgba(100,45,60,0.3)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M480,200 C476,190 485,182 478,172 C470,162 482,155 475,145 C472,140 480,136 476,130" fill="none" stroke="rgba(80,50,90,0.45)" stroke-width="5" stroke-linecap="round"/>
+        <path d="M478,172 C490,165 496,160 502,152" fill="none" stroke="rgba(80,50,90,0.35)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M475,145 C468,138 462,135 458,128" fill="none" stroke="rgba(80,50,90,0.3)" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="476" cy="128" r="4" fill="rgba(80,50,90,0.25)"/>
+        <circle cx="502" cy="150" r="3" fill="rgba(80,50,90,0.2)"/>
+        <circle cx="456" cy="126" r="3.5" fill="rgba(80,50,90,0.2)"/>
+        <path d="M850,200 C848,188 855,178 848,168" fill="none" stroke="rgba(90,55,45,0.5)" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M848,168 C842,158 835,152 828,145" fill="none" stroke="rgba(90,55,45,0.35)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M848,168 C855,160 862,155 868,148" fill="none" stroke="rgba(90,55,45,0.35)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M848,168 C846,158 848,150 845,140" fill="none" stroke="rgba(90,55,45,0.3)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M828,145 C822,140 818,135 815,130" fill="none" stroke="rgba(90,55,45,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M868,148 C874,142 878,138 882,132" fill="none" stroke="rgba(90,55,45,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M1180,200 C1178,190 1184,182 1176,174 C1172,168 1180,162 1175,156" fill="none" stroke="rgba(70,55,80,0.4)" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M1176,174 C1185,168 1190,164 1196,158" fill="none" stroke="rgba(70,55,80,0.3)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M1175,156 C1168,150 1164,146 1160,140" fill="none" stroke="rgba(70,55,80,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Chão ondulado -->
+        <path d="M0,165 C60,155 120,172 200,158 C300,142 380,170 480,155 C580,140 660,168 760,152 C860,138 940,165 1040,150 C1140,135 1220,162 1320,148 C1380,140 1420,158 1440,152 L1440,200 L0,200 Z" fill="#040a16"/>
+        <path d="M0,178 C100,170 200,185 340,172 C480,160 580,180 720,168 C860,158 960,178 1100,165 C1200,156 1320,175 1440,168 L1440,200 L0,200 Z" fill="#030810"/>
+      </svg>
+    </div>
+    <div class="ocean-floor-front">
+      <svg viewBox="0 0 1440 260" preserveAspectRatio="none">
+        <!-- Algas grandes e próximas -->
+        <path d="M50,260 C44,235 62,215 48,190 C34,165 58,148 42,122 C32,105 50,88 38,68 C30,55 42,42 35,30" fill="none" stroke="rgba(18,75,48,0.6)" stroke-width="6"/>
+        <path d="M72,260 C78,240 65,222 80,200 C90,182 70,168 85,148 C94,135 78,120 88,105" fill="none" stroke="rgba(22,85,52,0.45)" stroke-width="4"/>
+        <path d="M380,260 C374,230 392,210 376,182 C360,155 385,135 368,108 C358,90 378,72 365,50 C358,38 370,25 362,12" fill="none" stroke="rgba(20,80,50,0.5)" stroke-width="3.5"/>
+        <path d="M400,260 C408,242 395,225 410,205 C420,190 402,178 415,160 C422,148 410,138 418,125" fill="none" stroke="rgba(25,90,55,0.38)" stroke-width="3"/>
+        <path d="M1100,260 C1092,232 1112,210 1095,185 C1080,162 1105,145 1088,120 C1078,105 1098,90 1085,72" fill="none" stroke="rgba(20,78,48,0.55)" stroke-width="5.5"/>
+        <path d="M1350,260 C1342,230 1360,208 1340,180 C1325,158 1352,138 1335,110 C1325,95 1345,78 1330,58 C1322,45 1338,32 1328,18" fill="none" stroke="rgba(18,72,45,0.6)" stroke-width="5"/>
+        <path d="M1380,260 C1388,245 1375,230 1390,212 C1400,198 1382,185 1395,168 C1402,158 1390,148 1398,135" fill="none" stroke="rgba(24,88,54,0.4)" stroke-width="3.5"/>
+        <!-- Coral grande ramificado esquerdo -->
+        <path d="M180,260 C175,242 188,225 178,205 C168,185 182,172 172,155 C165,142 178,132 170,118" fill="none" stroke="rgba(100,45,60,0.55)" stroke-width="7" stroke-linecap="round"/>
+        <path d="M178,205 C195,192 208,182 220,168" fill="none" stroke="rgba(100,45,60,0.45)" stroke-width="5" stroke-linecap="round"/>
+        <path d="M178,205 C160,195 148,188 135,178" fill="none" stroke="rgba(100,45,60,0.4)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M170,118 C180,108 188,102 196,92" fill="none" stroke="rgba(100,45,60,0.35)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M170,118 C158,110 148,105 140,95" fill="none" stroke="rgba(100,45,60,0.35)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M220,168 C228,158 235,152 242,142" fill="none" stroke="rgba(100,45,60,0.3)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M135,178 C125,172 118,165 110,158" fill="none" stroke="rgba(100,45,60,0.3)" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Coral grande bulboso centro -->
+        <path d="M720,260 C714,238 730,218 716,195 C702,175 722,158 708,138 C700,125 716,112 706,98" fill="none" stroke="rgba(75,48,88,0.55)" stroke-width="7.5" stroke-linecap="round"/>
+        <path d="M716,195 C738,182 750,172 762,158" fill="none" stroke="rgba(75,48,88,0.4)" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M708,138 C695,128 685,120 675,110" fill="none" stroke="rgba(75,48,88,0.35)" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M706,98 C715,88 722,82 728,72" fill="none" stroke="rgba(75,48,88,0.3)" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="706" cy="95" r="6" fill="rgba(75,48,88,0.22)"/>
+        <circle cx="762" cy="155" r="5" fill="rgba(75,48,88,0.18)"/>
+        <circle cx="673" cy="108" r="5.5" fill="rgba(75,48,88,0.18)"/>
+        <circle cx="728" cy="70" r="4" fill="rgba(75,48,88,0.15)"/>
+        <!-- Coral fan grande direita -->
+        <path d="M960,260 C955,238 968,220 955,198 C945,180 960,168 950,150" fill="none" stroke="rgba(88,52,42,0.55)" stroke-width="6.5" stroke-linecap="round"/>
+        <path d="M955,198 C940,185 928,175 915,162" fill="none" stroke="rgba(88,52,42,0.4)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M955,198 C972,188 985,178 998,165" fill="none" stroke="rgba(88,52,42,0.4)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M950,150 C942,140 935,132 925,122" fill="none" stroke="rgba(88,52,42,0.3)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M950,150 C960,140 968,132 978,122" fill="none" stroke="rgba(88,52,42,0.3)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M915,162 C905,155 898,148 888,140" fill="none" stroke="rgba(88,52,42,0.22)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M998,165 C1008,158 1015,150 1025,142" fill="none" stroke="rgba(88,52,42,0.22)" stroke-width="2" stroke-linecap="round"/>
+        <!-- Chão ondulado frente -->
+        <path d="M0,222 C80,208 180,232 300,215 C420,198 520,228 660,210 C800,195 900,225 1040,208 C1140,195 1260,222 1380,208 C1420,202 1440,215 1440,212 L1440,260 L0,260 Z" fill="#030810"/>
+        <path d="M0,238 C120,230 260,248 420,235 C580,222 700,245 860,232 C1020,220 1140,242 1300,230 C1380,225 1440,238 1440,235 L1440,260 L0,260 Z" fill="#020610"/>
+      </svg>
+    </div>
+  </div>
+  <script>
+    const bubblesContainer = document.getElementById('bubbles');
+    const pageHeight = document.documentElement.scrollHeight;
+    const pageWidth = window.innerWidth;
+
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+
+    for (let i = 0; i < 80; i++) {
+      const b = document.createElement('div');
+      b.classList.add('bubble');
+      const size = rand(4, 14);
+      b.style.width = size + 'px';
+      b.style.height = size + 'px';
+      b.style.left = rand(5, pageWidth - 5) + 'px';
+      b.style.top = (pageHeight - 50) + 'px';
+      b.style.animationDuration = rand(30, 55) + 's';
+      b.style.animationDelay = -rand(0, 50) + 's';
+      bubblesContainer.appendChild(b);
+    }
+  </script>
+</body>
+</html>

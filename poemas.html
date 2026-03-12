@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meus Poemas ❤️</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #0a1628 0%, #0d2137 25%, #0a2e1f 60%, #0d1f15 100%);
+      background-attachment: fixed;
+      padding: 40px 20px;
+      overflow-x: hidden;
+    }
+
+    .container { position: relative; z-index: 2; max-width: 600px; margin: 0 auto; }
+
+    .page-title {
+      text-align: center;
+      font-family: 'Dancing Script', cursive;
+      color: #4ecdc4;
+      font-size: 2.8rem;
+      margin-bottom: 40px;
+      text-shadow: 0 0 30px rgba(78, 205, 196, 0.3);
+      opacity: 0;
+      animation: fadeDown 1s ease forwards;
+    }
+
+    @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .poem-card-wrapper {
+      position: relative;
+      margin-bottom: 30px;
+    }
+
+    .poem-card {
+      position: relative;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(78, 205, 196, 0.15);
+      border-radius: 20px;
+      padding: 40px 35px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), inset 0 0 80px rgba(78, 205, 196, 0.03);
+      opacity: 0;
+      animation: cardAppear 0.8s ease forwards;
+      z-index: 2;
+    }
+
+    .poem-card-wrapper:nth-child(2) .poem-card { animation-delay: 0.2s; }
+    .poem-card-wrapper:nth-child(3) .poem-card { animation-delay: 0.4s; }
+    .poem-card-wrapper:nth-child(4) .poem-card { animation-delay: 0.6s; }
+    .poem-card-wrapper:nth-child(5) .poem-card { animation-delay: 0.8s; }
+    .poem-card-wrapper:nth-child(6) .poem-card { animation-delay: 1s; }
+
+    @keyframes cardAppear { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .poem-card h2 {
+      font-family: 'Dancing Script', cursive;
+      color: #4ecdc4;
+      font-size: 1.8rem;
+      text-align: center;
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+    }
+    .separator { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
+    .separator .line { width: 40px; height: 1px; background: linear-gradient(90deg, transparent, #4ecdc4, transparent); }
+    .separator .heart { color: #4ecdc4; font-size: 0.7rem; }
+    .poem-card p {
+      font-family: 'Lora', serif;
+      color: #c8dbe6;
+      font-size: 1.05rem;
+      line-height: 2;
+      text-align: center;
+      font-style: italic;
+    }
+
+    .back-btn {
+      display: block;
+      margin: 10px auto 0;
+      background: rgba(78, 205, 196, 0.15);
+      border: 1px solid rgba(78, 205, 196, 0.3);
+      color: #4ecdc4;
+      font-family: 'Lora', serif;
+      font-size: 1.1rem;
+      padding: 14px 40px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      text-align: center;
+      width: fit-content;
+    }
+    .back-btn:hover { background: rgba(78, 205, 196, 0.25); transform: translateY(-2px); }
+
+    .next-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      margin: 10px auto 25px;
+      text-decoration: none;
+      cursor: pointer;
+      opacity: 0;
+      animation: cardAppear 0.8s ease forwards 1.2s;
+    }
+    .next-text {
+      font-family: 'Lora', serif;
+      color: rgba(78, 205, 196, 0.6);
+      font-size: 1rem;
+      font-style: italic;
+    }
+    .next-arrow {
+      color: #4ecdc4;
+      font-size: 1.4rem;
+      animation: bounce 1.5s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+    .next-page:hover .next-text { color: #4ecdc4; }
+    .next-page:hover .next-arrow { text-shadow: 0 0 10px rgba(78, 205, 196, 0.5); }
+
+    .glow-left, .glow-right { position: fixed; width: 300px; height: 300px; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
+    .glow-left { top: 20%; left: -100px; background: rgba(30, 80, 130, 0.25); animation: float 8s ease-in-out infinite; }
+    .glow-right { bottom: 20%; right: -100px; background: rgba(30, 130, 80, 0.2); animation: float 8s ease-in-out infinite reverse; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
+
+    /* Partículas fullscreen */
+    #particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: visible;
+    }
+
+    .particle {
+      position: absolute;
+      pointer-events: none;
+    }
+
+    /* Dot / poeira */
+    .p-dot {
+      border-radius: 50%;
+      background: rgba(78, 205, 196, 0.3);
+      box-shadow: 0 0 8px rgba(78, 205, 196, 0.2);
+    }
+
+    /* Estrela cruz */
+    .p-star::before, .p-star::after {
+      content: '';
+      position: absolute;
+      background: rgba(78, 205, 196, 0.35);
+      border-radius: 1px;
+    }
+    .p-star::before {
+      width: 100%;
+      height: 25%;
+      top: 37.5%;
+      left: 0;
+    }
+    .p-star::after {
+      width: 25%;
+      height: 100%;
+      top: 0;
+      left: 37.5%;
+    }
+
+    /* Lua crescente */
+    .p-moon {
+      border-radius: 50%;
+      background: transparent;
+      box-shadow: 6px -2px 0 0 rgba(78, 205, 196, 0.2);
+    }
+
+    /* Lua cheia */
+    .p-full {
+      border-radius: 50%;
+      background: rgba(78, 205, 196, 0.12);
+      box-shadow: 0 0 15px rgba(78, 205, 196, 0.08);
+    }
+
+    /* Órbita */
+    .p-orbit {
+      border-radius: 50%;
+      border: 1px solid rgba(78, 205, 196, 0.06);
+    }
+
+    /* Nebulosa */
+    .p-nebula {
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(78, 205, 196, 0.06), transparent);
+      filter: blur(12px);
+    }
+
+    /* Animações */
+    @keyframes pFloat1 {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes pFloat2 {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-7px) rotate(5deg); }
+    }
+    @keyframes pPulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    @media (max-width: 480px) {
+      .page-title { font-size: 2rem; }
+      .poem-card { padding: 30px 20px; }
+      .poem-card h2 { font-size: 1.5rem; }
+      .poem-card p { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow-left"></div>
+  <div class="glow-right"></div>
+
+  <div id="particles"></div>
+
+  <div class="container">
+    <h1 class="page-title">Poemas pra Você 💕</h1>
+
+    <div class="poem-card-wrapper">
+      <div class="poem-card">
+        <h2>Sol e Lua</h2>
+        <div class="separator"><span class="line"></span><span class="heart">♥</span><span class="line"></span></div>
+        <p>
+          Essa paixão que eu sinto aqui dentro<br>
+          Essa paixão é só sua<br>
+          Nunca amei tanto alguém como eu amo você<br>
+          Essa é a verdade crua<br><br>
+          Quando olho pro céu, vejo as estrelas<br>
+          No meu coração, o amor continua<br>
+          A crescer sem parar, sinto-me como<br>
+          Eu fosse o Sol e você fosse a Lua...
+        </p>
+      </div>
+    </div>
+
+    <div class="poem-card-wrapper">
+      <div class="poem-card">
+        <h2>Fases da Lua 🌑</h2>
+        <div class="separator"><span class="line"></span><span class="heart">♥</span><span class="line"></span></div>
+        <p>
+          Me sinto tranquilo, como bossa nova<br>
+          De estar com você e isso só prova<br>
+          Que sua presença e seu amor me renova<br>
+          Te amo muito, minha lua nova 🌑
+        </p>
+      </div>
+    </div>
+
+    <div class="poem-card-wrapper">
+      <div class="poem-card">
+        <h2>🌘</h2>
+        <div class="separator"><span class="line"></span><span class="heart">♥</span><span class="line"></span></div>
+        <p>
+          No céu noturno<br>
+          Você seria a estrela mais brilhante<br>
+          Quero você a todo instante<br>
+          Te amo muito, minha lua minguante 🌘
+        </p>
+      </div>
+    </div>
+
+    <div class="poem-card-wrapper">
+      <div class="poem-card">
+        <h2>🌖</h2>
+        <div class="separator"><span class="line"></span><span class="heart">♥</span><span class="line"></span></div>
+        <p>
+          Faria um pedido, se visse uma estrela cadente<br>
+          Pediria algo que nunca sai da minha mente<br>
+          Quero viver pra sempre, esse amor tão ardente<br>
+          Te amo muito, minha lua crescente 🌖
+        </p>
+      </div>
+    </div>
+
+    <div class="poem-card-wrapper">
+      <div class="poem-card">
+        <h2>🌕</h2>
+        <div class="separator"><span class="line"></span><span class="heart">♥</span><span class="line"></span></div>
+        <p>
+          Sinto o sangue correndo nas minhas veias<br>
+          Quando vejo essa beleza que clareia<br>
+          Não é besteira, ou uma bobagem alheia<br>
+          Te amo muito, minha lua cheia 🌕
+        </p>
+      </div>
+    </div>
+
+    <a href="poemas2.html" class="next-page">
+      <span class="next-text">tem mais...</span>
+      <span class="next-arrow">↓</span>
+    </a>
+
+    <a href="index.html" class="back-btn">← Voltar ao poema</a>
+  </div>
+
+  <script>
+    // Gera partículas por toda a tela com densidade crescente de cima pra baixo
+    const particlesContainer = document.getElementById('particles');
+    const pageHeight = document.documentElement.scrollHeight;
+    const pageWidth = window.innerWidth;
+
+    // Divide a página em faixas verticais — cada faixa mais densa
+    const bands = [
+      { from: 0, to: 0.2, count: 8 },      // topo: quase vazio
+      { from: 0.2, to: 0.4, count: 18 },    // pouco
+      { from: 0.4, to: 0.6, count: 35 },    // moderado
+      { from: 0.6, to: 0.8, count: 60 },    // denso
+      { from: 0.8, to: 1.0, count: 100 },   // máximo: poeira cósmica
+    ];
+
+    const types = ['dot', 'star', 'moon', 'full', 'orbit', 'nebula'];
+    const animations = ['pFloat1', 'pFloat2', 'pPulse'];
+
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+
+    bands.forEach(band => {
+      const yMin = band.from * pageHeight;
+      const yMax = band.to * pageHeight;
+      const density = band.count;
+
+      // Proporção de tipos muda: mais baixo = mais luas e nebulosas
+      const progress = band.from; // 0 = topo, 0.8 = fundo
+
+      for (let i = 0; i < density; i++) {
+        const el = document.createElement('div');
+        el.classList.add('particle');
+
+        // Escolhe tipo baseado na posição
+        let type;
+        const r = Math.random();
+        if (progress < 0.3) {
+          // Topo: maioria dots e estrelas pequenas
+          type = r < 0.6 ? 'dot' : r < 0.9 ? 'star' : 'moon';
+        } else if (progress < 0.6) {
+          // Meio: mix equilibrado
+          type = r < 0.3 ? 'dot' : r < 0.5 ? 'star' : r < 0.7 ? 'moon' : r < 0.85 ? 'full' : 'orbit';
+        } else {
+          // Fundo: muitas luas, nebulosas, órbitas
+          type = r < 0.15 ? 'dot' : r < 0.25 ? 'star' : r < 0.4 ? 'moon' : r < 0.55 ? 'full' : r < 0.7 ? 'orbit' : 'nebula';
+        }
+
+        el.classList.add('p-' + type);
+
+        // Posição aleatória por toda a largura da tela
+        const x = rand(0, pageWidth);
+        const y = rand(yMin, yMax);
+
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+
+        // Tamanho baseado no tipo
+        let size;
+        switch (type) {
+          case 'dot':
+            size = rand(2, 5);
+            break;
+          case 'star':
+            size = rand(6, 14);
+            break;
+          case 'moon':
+            size = rand(12, 30);
+            el.style.boxShadow = `${size * 0.3}px -${size * 0.1}px 0 0 rgba(78, 205, 196, ${rand(0.12, 0.25)})`;
+            break;
+          case 'full':
+            size = rand(8, 25);
+            el.style.boxShadow = `0 0 ${size}px rgba(78, 205, 196, ${rand(0.06, 0.12)})`;
+            break;
+          case 'orbit':
+            size = rand(30, 70);
+            break;
+          case 'nebula':
+            size = rand(60, 150);
+            break;
+        }
+
+        el.style.width = size + 'px';
+        el.style.height = size + 'px';
+
+        // Animação aleatória
+        const anim = animations[Math.floor(Math.random() * animations.length)];
+        const duration = rand(4, 10);
+        const delay = rand(0, 5);
+        el.style.animation = `${anim} ${duration}s ease-in-out ${delay}s infinite`;
+
+        particlesContainer.appendChild(el);
+      }
+    });
+
+    // Ajusta altura do container de partículas
+    particlesContainer.style.height = pageHeight + 'px';
+  </script>
+</body>
+</html>
