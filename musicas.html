@@ -78,6 +78,32 @@
       animation: cardAppear 0.6s ease forwards;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       cursor: default;
+      flex-wrap: wrap;
+    }
+
+    .music-card[data-audio] {
+      cursor: pointer;
+    }
+
+    .music-card.playing {
+      border-color: rgba(78, 205, 196, 0.4);
+      box-shadow: 0 8px 30px rgba(78, 205, 196, 0.15), 0 0 20px rgba(78, 205, 196, 0.08);
+    }
+
+    .music-play {
+      flex-shrink: 0;
+      margin-left: auto;
+      color: rgba(78, 205, 196, 0.4);
+      font-size: 1.4rem;
+      transition: color 0.3s ease;
+    }
+
+    .music-card[data-audio]:hover .music-play {
+      color: #4ecdc4;
+    }
+
+    .music-card.playing .music-play {
+      color: #4ecdc4;
     }
 
     .music-card:hover {
@@ -151,6 +177,62 @@
       text-align: center;
     }
 
+    /* Barra de progresso dentro do card */
+    .music-progress {
+      width: 100%;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding-top: 10px;
+    }
+    .music-card.playing .music-progress {
+      display: flex;
+    }
+    .progress-time {
+      font-family: 'Lora', serif;
+      font-size: 0.75rem;
+      color: rgba(200, 219, 230, 0.5);
+      min-width: 38px;
+      text-align: center;
+      user-select: none;
+    }
+    .progress-bar {
+      flex: 1;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 2px;
+      cursor: pointer;
+      position: relative;
+      pointer-events: auto;
+    }
+    .progress-bar:hover {
+      height: 6px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #4ecdc4;
+      border-radius: 2px;
+      width: 0%;
+      position: relative;
+      transition: width 0.1s linear;
+    }
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      right: -5px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #4ecdc4;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .progress-bar:hover .progress-fill::after {
+      opacity: 1;
+    }
+
     .back-btn {
       display: block;
       margin: 0 auto;
@@ -174,14 +256,215 @@
     .glow-right { bottom: 20%; right: -100px; background: rgba(30, 130, 80, 0.2); animation: float 8s ease-in-out infinite reverse; }
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
 
+    /* Background preview da foto da música tocando */
+    .music-bg-preview {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+    }
+    .music-bg-preview.active {
+      opacity: 1;
+    }
+    .music-bg-preview img {
+      width: 60%;
+      height: 100%;
+      object-fit: cover;
+      -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, transparent 100%);
+      mask-image: linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, transparent 100%);
+      opacity: 0.35;
+    }
+
+    /* Disco de vinil girando */
+    .vinyl-disc {
+      position: fixed;
+      left: -200px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 400px;
+      height: 400px;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    .vinyl-disc.active {
+      opacity: 1;
+    }
+    .vinyl-disc .disc {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, transparent 28%, rgba(30,30,30,0.6) 29%, transparent 30%),
+        radial-gradient(circle, transparent 38%, rgba(50,50,50,0.4) 39%, transparent 40%),
+        radial-gradient(circle, transparent 48%, rgba(30,30,30,0.5) 49%, transparent 50%),
+        radial-gradient(circle, transparent 58%, rgba(50,50,50,0.4) 59%, transparent 60%),
+        radial-gradient(circle, transparent 68%, rgba(30,30,30,0.5) 69%, transparent 70%),
+        radial-gradient(circle, transparent 78%, rgba(50,50,50,0.3) 79%, transparent 80%),
+        radial-gradient(circle, transparent 88%, rgba(30,30,30,0.4) 89%, transparent 90%),
+        radial-gradient(circle, #111 0%, #1a1a1a 25%, #222 50%, #1a1a1a 75%, #111 100%);
+      box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.3);
+      animation: none;
+    }
+    .vinyl-disc.active .disc {
+      animation: spinVinyl 3s linear infinite;
+    }
+    .vinyl-disc .disc-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(40,40,40,0.8);
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .vinyl-disc .disc-label img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .vinyl-disc .disc-hole {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #0a1628;
+      z-index: 2;
+      border: 1px solid rgba(40,40,40,0.6);
+    }
+    .vinyl-disc .disc-shine {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%, rgba(255,255,255,0.03) 100%);
+      pointer-events: none;
+    }
+    @keyframes spinVinyl {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Card de mensagem pessoal na direita */
+    .personal-note {
+      position: fixed;
+      /* Centraliza no espaço entre a borda direita do container e a borda da tela */
+      /* Container termina em: 50% + 300px. Centro do espaço restante: metade entre esse ponto e 100vw */
+      left: calc(50% + 300px + (100vw - 50% - 300px) / 2);
+      top: 50%;
+      width: 380px;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+      transform: translate(-50%, -50%) translateY(0) translateX(20px);
+    }
+    .personal-note.active {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+    .personal-note-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(78, 205, 196, 0.2);
+      border-radius: 20px;
+      padding: 32px 28px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(78, 205, 196, 0.05);
+    }
+    .personal-note-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(78, 205, 196, 0.12);
+    }
+    .personal-note-icon {
+      font-size: 1.5rem;
+    }
+    .personal-note-title {
+      font-family: 'Dancing Script', cursive;
+      color: #4ecdc4;
+      font-size: 1.5rem;
+    }
+    .personal-note p {
+      font-family: 'Lora', serif;
+      font-style: italic;
+      color: rgba(200, 219, 230, 0.75);
+      font-size: 1.05rem;
+      line-height: 1.85;
+    }
+    .personal-note .note-sign {
+      font-family: 'Dancing Script', cursive;
+      color: rgba(78, 205, 196, 0.5);
+      font-size: 1.3rem;
+      margin-top: 22px;
+      display: block;
+      text-align: right;
+    }
+
     @media (max-width: 480px) {
       .page-title { font-size: 2rem; }
       .music-cover { width: 55px; height: 55px; }
       .music-name { font-size: 0.95rem; }
+      .music-bg-preview img { width: 100%; }
+      .vinyl-disc { display: none; }
+      .personal-note { display: none; }
+    }
+    @media (max-width: 1100px) and (min-width: 481px) {
+      .vinyl-disc {
+        width: 300px;
+        height: 300px;
+        left: -150px;
+      }
+      .vinyl-disc .disc-label {
+        width: 100px;
+        height: 100px;
+      }
+      .personal-note {
+        right: 20px;
+        width: 220px;
+      }
+      .personal-note p { font-size: 0.85rem; }
+      .personal-note-card { padding: 18px 16px; }
     }
   </style>
 </head>
 <body>
+  <div class="music-bg-preview">
+    <img src="" alt="">
+  </div>
+  <div class="vinyl-disc">
+    <div class="disc">
+      <div class="disc-label"><img src="" alt=""></div>
+      <div class="disc-hole"></div>
+      <div class="disc-shine"></div>
+    </div>
+  </div>
+  <div class="personal-note" id="note-1">
+    <div class="personal-note-card">
+      <div class="personal-note-header">
+        <span class="personal-note-icon">💌</span>
+        <span class="personal-note-title">Pra você</span>
+      </div>
+      <p>Gosto de compartilhar meus momentos com você e gosto muito da ideia de compartilhar gostos com você. Essa música em específico foi a primeira música deles que você me mostrou, então eu tenho um certo carinho por ela por esse motivo, e olha, acabou que eu gostei pra caramba das músicas deles kkkkk</p>
+      <span class="note-sign">— com amor ❤️</span>
+    </div>
+  </div>
   <div class="glow-left"></div>
   <div class="glow-right"></div>
 
@@ -191,15 +474,20 @@
 
     <div class="music-list">
 
-      <div class="music-card">
+      <div class="music-card" data-audio="Musicas/WhatsApp Audio 2026-03-13 at 00.47.20.mpeg">
         <span class="music-number">1</span>
         <div class="music-cover">
-          <!-- <img src="capas/capa1.jpg" alt="Capa"> -->
-          <div class="cover-placeholder">🎵</div>
+          <img src="Fotos-musicas/WhatsApp Image 2026-03-13 at 00.47.13.jpeg" alt="Capa">
         </div>
         <div class="music-info">
-          <span class="music-name">Nome da Música</span>
-          <span class="music-artist">Nome do Artista</span>
+          <span class="music-name">The Cypher Deffect</span>
+          <span class="music-artist">Costa Gold</span>
+        </div>
+        <span class="music-play">▶</span>
+        <div class="music-progress">
+          <span class="progress-time progress-current">0:00</span>
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <span class="progress-time progress-duration">0:00</span>
         </div>
       </div>
 
@@ -262,5 +550,135 @@
 
     <a href="index.html" class="back-btn">← Voltar ao poema</a>
   </div>
+
+  <script>
+    let currentAudio = null;
+    let currentCard = null;
+    let progressRAF = null;
+    const bgPreview = document.querySelector('.music-bg-preview');
+    const bgImg = bgPreview.querySelector('img');
+    const vinylDisc = document.querySelector('.vinyl-disc');
+    const vinylLabel = vinylDisc.querySelector('.disc-label img');
+    const personalNotes = {
+      'Musicas/WhatsApp Audio 2026-03-13 at 00.47.20.mpeg': document.getElementById('note-1')
+    };
+
+    let activeNote = null;
+
+    function formatTime(s) {
+      if (isNaN(s)) return '0:00';
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return m + ':' + (sec < 10 ? '0' : '') + sec;
+    }
+
+    function updateProgress() {
+      if (!currentAudio || !currentCard) return;
+      const fill = currentCard.querySelector('.progress-fill');
+      const cur = currentCard.querySelector('.progress-current');
+      const dur = currentCard.querySelector('.progress-duration');
+      if (fill && currentAudio.duration) {
+        fill.style.width = (currentAudio.currentTime / currentAudio.duration * 100) + '%';
+        cur.textContent = formatTime(currentAudio.currentTime);
+        dur.textContent = formatTime(currentAudio.duration);
+      }
+      progressRAF = requestAnimationFrame(updateProgress);
+    }
+
+    function stopProgress() {
+      if (progressRAF) { cancelAnimationFrame(progressRAF); progressRAF = null; }
+    }
+
+    function resetProgress(card) {
+      const fill = card.querySelector('.progress-fill');
+      const cur = card.querySelector('.progress-current');
+      if (fill) fill.style.width = '0%';
+      if (cur) cur.textContent = '0:00';
+    }
+
+    // Clique na barra de progresso para pular
+    document.querySelectorAll('.progress-bar').forEach(bar => {
+      bar.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!currentAudio || !currentAudio.duration) return;
+        const rect = bar.getBoundingClientRect();
+        const pct = (e.clientX - rect.left) / rect.width;
+        currentAudio.currentTime = pct * currentAudio.duration;
+      });
+    });
+
+    function showBgPreview(card) {
+      const coverImg = card.querySelector('.music-cover img');
+      if (coverImg) {
+        bgImg.src = coverImg.src;
+        vinylLabel.src = coverImg.src;
+        bgPreview.classList.add('active');
+        vinylDisc.classList.add('active');
+      }
+      const src = card.getAttribute('data-audio');
+      if (activeNote) activeNote.classList.remove('active');
+      if (personalNotes[src]) {
+        personalNotes[src].classList.add('active');
+        activeNote = personalNotes[src];
+      } else {
+        activeNote = null;
+      }
+    }
+
+    function hideBgPreview() {
+      bgPreview.classList.remove('active');
+      vinylDisc.classList.remove('active');
+      if (activeNote) { activeNote.classList.remove('active'); activeNote = null; }
+    }
+
+    document.querySelectorAll('.music-card[data-audio]').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.progress-bar')) return;
+        const src = card.getAttribute('data-audio');
+        const playIcon = card.querySelector('.music-play');
+
+        // Se clicou no card que já está tocando, pausa
+        if (currentCard === card && currentAudio && !currentAudio.paused) {
+          currentAudio.pause();
+          card.classList.remove('playing');
+          playIcon.textContent = '▶';
+          hideBgPreview();
+          stopProgress();
+          return;
+        }
+
+        // Para o áudio anterior se existir
+        if (currentAudio) {
+          currentAudio.pause();
+          stopProgress();
+          if (currentCard) {
+            currentCard.classList.remove('playing');
+            currentCard.querySelector('.music-play').textContent = '▶';
+            resetProgress(currentCard);
+          }
+        }
+
+        // Toca o novo
+        currentAudio = new Audio(src);
+        currentCard = card;
+        currentAudio.play();
+        card.classList.add('playing');
+        playIcon.textContent = '⏸';
+        showBgPreview(card);
+        updateProgress();
+
+        // Quando terminar, reseta o visual
+        currentAudio.addEventListener('ended', () => {
+          card.classList.remove('playing');
+          playIcon.textContent = '▶';
+          hideBgPreview();
+          stopProgress();
+          resetProgress(card);
+          currentAudio = null;
+          currentCard = null;
+        });
+      });
+    });
+  </script>
 </body>
 </html>
