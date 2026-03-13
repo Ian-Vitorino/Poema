@@ -465,6 +465,16 @@
       <span class="note-sign">— com amor ❤️</span>
     </div>
   </div>
+  <div class="personal-note" id="note-2">
+    <div class="personal-note-card">
+      <div class="personal-note-header">
+        <span class="personal-note-icon">💌</span>
+        <span class="personal-note-title">Pra você</span>
+      </div>
+      <p>Sua mensagem aqui...</p>
+      <span class="note-sign">— com amor ❤️</span>
+    </div>
+  </div>
   <div class="glow-left"></div>
   <div class="glow-right"></div>
 
@@ -491,14 +501,20 @@
         </div>
       </div>
 
-      <div class="music-card">
+      <div class="music-card" data-audio="Musicas/WhatsApp Audio 2026-03-13 at 01.45.30.mpeg">
         <span class="music-number">2</span>
         <div class="music-cover">
-          <div class="cover-placeholder">🎵</div>
+          <img src="Fotos-musicas/1900x1900-000000-80-0-0.jpg" alt="Capa">
         </div>
         <div class="music-info">
-          <span class="music-name">Nome da Música</span>
-          <span class="music-artist">Nome do Artista</span>
+          <span class="music-name">Sem Graça</span>
+          <span class="music-artist">HaiKaiss</span>
+        </div>
+        <span class="music-play">▶</span>
+        <div class="music-progress">
+          <span class="progress-time progress-current">0:00</span>
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <span class="progress-time progress-duration">0:00</span>
         </div>
       </div>
 
@@ -560,7 +576,8 @@
     const vinylDisc = document.querySelector('.vinyl-disc');
     const vinylLabel = vinylDisc.querySelector('.disc-label img');
     const personalNotes = {
-      'Musicas/WhatsApp Audio 2026-03-13 at 00.47.20.mpeg': document.getElementById('note-1')
+      'Musicas/WhatsApp Audio 2026-03-13 at 00.47.20.mpeg': document.getElementById('note-1'),
+      'Musicas/WhatsApp Audio 2026-03-13 at 01.45.30.mpeg': document.getElementById('note-2')
     };
 
     let activeNote = null;
@@ -574,13 +591,15 @@
 
     function updateProgress() {
       if (!currentAudio || !currentCard) return;
-      const fill = currentCard.querySelector('.progress-fill');
-      const cur = currentCard.querySelector('.progress-current');
-      const dur = currentCard.querySelector('.progress-duration');
-      if (fill && currentAudio.duration) {
-        fill.style.width = (currentAudio.currentTime / currentAudio.duration * 100) + '%';
-        cur.textContent = formatTime(currentAudio.currentTime);
-        dur.textContent = formatTime(currentAudio.duration);
+      if (!isDragging) {
+        const fill = currentCard.querySelector('.progress-fill');
+        const cur = currentCard.querySelector('.progress-current');
+        const dur = currentCard.querySelector('.progress-duration');
+        if (fill && currentAudio.duration) {
+          fill.style.width = (currentAudio.currentTime / currentAudio.duration * 100) + '%';
+          cur.textContent = formatTime(currentAudio.currentTime);
+          dur.textContent = formatTime(currentAudio.duration);
+        }
       }
       progressRAF = requestAnimationFrame(updateProgress);
     }
@@ -596,14 +615,80 @@
       if (cur) cur.textContent = '0:00';
     }
 
-    // Clique na barra de progresso para pular
+    // Clique e arraste na barra de progresso
+    let isDragging = false;
+    let dragPct = 0;
+
+    function getPctFromEvent(bar, e) {
+      const rect = bar.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    }
+
+    function previewDrag(bar, pct) {
+      // Atualiza visual da barra sem alterar o áudio
+      const fill = bar.querySelector('.progress-fill');
+      const card = bar.closest('.music-card');
+      const cur = card.querySelector('.progress-current');
+      if (fill) fill.style.width = (pct * 100) + '%';
+      if (cur && currentAudio && currentAudio.duration) {
+        cur.textContent = formatTime(pct * currentAudio.duration);
+      }
+    }
+
     document.querySelectorAll('.progress-bar').forEach(bar => {
       bar.addEventListener('click', (e) => {
+        if (isDragging) return;
         e.stopPropagation();
         if (!currentAudio || !currentAudio.duration) return;
-        const rect = bar.getBoundingClientRect();
-        const pct = (e.clientX - rect.left) / rect.width;
-        currentAudio.currentTime = pct * currentAudio.duration;
+        currentAudio.currentTime = getPctFromEvent(bar, e) * currentAudio.duration;
+      });
+
+      bar.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (!currentAudio || !currentAudio.duration) return;
+        isDragging = true;
+        dragPct = getPctFromEvent(bar, e);
+        previewDrag(bar, dragPct);
+
+        const onMove = (ev) => {
+          if (!isDragging) return;
+          dragPct = getPctFromEvent(bar, ev);
+          previewDrag(bar, dragPct);
+        };
+        const onUp = () => {
+          if (isDragging && currentAudio && currentAudio.duration) {
+            currentAudio.currentTime = dragPct * currentAudio.duration;
+          }
+          isDragging = false;
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+
+      // Touch support
+      bar.addEventListener('touchstart', (e) => {
+        e.stopPropagation();
+        if (!currentAudio || !currentAudio.duration) return;
+        isDragging = true;
+        dragPct = getPctFromEvent(bar, e);
+        previewDrag(bar, dragPct);
+      }, { passive: true });
+
+      bar.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        dragPct = getPctFromEvent(bar, e);
+        previewDrag(bar, dragPct);
+      }, { passive: true });
+
+      bar.addEventListener('touchend', () => {
+        if (isDragging && currentAudio && currentAudio.duration) {
+          currentAudio.currentTime = dragPct * currentAudio.duration;
+        }
+        isDragging = false;
       });
     });
 

@@ -316,6 +316,14 @@
       .poem-card { padding: 30px 20px; }
       .poem-card h2 { font-size: 1.5rem; }
       .poem-card p { font-size: 0.95rem; }
+
+      /* Performance mobile: esconder elementos animados extras */
+      .fish5, .fish6, .fish7, .fish8, .fish9, .fish10,
+      .fish11, .fish12, .fish13, .fish14, .fish15 { display: none; }
+      .jf3, .jf4, .jf5, .jf6 { display: none; }
+      .bf2, .bf3 { display: none; }
+      .chase-group { display: none; }
+      .submarine { display: none; }
     }
   </style>
 </head>
@@ -509,13 +517,12 @@
     <!-- Poema curto 2 -->
     <div class="poem-card-wrapper">
       <div class="poem-card">
-        <h2>Título 2</h2>
         <div class="separator"><span class="line"></span><span class="heart">♥</span><span class="line"></span></div>
         <p>
-          Primeiro verso aqui<br>
-          Segundo verso aqui<br>
-          Terceiro verso aqui<br>
-          Quarto verso aqui
+          Uma coisa estranha dentro de mim, não sei explicar o que é<br>
+          Só sinto quando estou te olhando, da cabeças aos pés<br>
+          Vai e vem, esses são meus olhos observando você. Até<br>
+          Quando estou relaxando, deito em você, sinto o ritmo suave da maré
         </p>
       </div>
     </div>
@@ -523,13 +530,12 @@
     <!-- Poema curto 3 -->
     <div class="poem-card-wrapper">
       <div class="poem-card">
-        <h2>Título 3</h2>
         <div class="separator"><span class="line"></span><span class="heart">♥</span><span class="line"></span></div>
         <p>
-          Primeiro verso aqui<br>
-          Segundo verso aqui<br>
-          Terceiro verso aqui<br>
-          Quarto verso aqui
+          Está rondando, rodando, girando, girando meu mundo<br>
+          Mas sabe o que tanto está animando esse meu ser oriundo?<br>
+          Nem que eu possa passar apenas um segundo<br>
+          Olhando para esses seus olhos de oceano profundo
         </p>
       </div>
     </div>
@@ -537,13 +543,15 @@
     <!-- Poema curto 4 -->
     <div class="poem-card-wrapper">
       <div class="poem-card">
-        <h2>Título 4</h2>
         <div class="separator"><span class="line"></span><span class="heart">♥</span><span class="line"></span></div>
         <p>
-          Primeiro verso aqui<br>
-          Segundo verso aqui<br>
-          Terceiro verso aqui<br>
-          Quarto verso aqui
+          Cada momento da minha vida, eu dedico ele em prol<br>
+          Pensar em você, como se tivesse me fisgado com um anzol<br>
+          Me localizo na alma, seu brilho remete a um farol<br>
+          Imagina nois dois<br>
+          Sentados na pria<br>
+          Roupa de banho em sandália<br>
+          Assistindo ao por do Sol
         </p>
       </div>
     </div>
@@ -655,7 +663,8 @@
 
     function rand(min, max) { return Math.random() * (max - min) + min; }
 
-    for (let i = 0; i < 80; i++) {
+    const bubbleCount = window.innerWidth <= 480 ? 25 : 80;
+    for (let i = 0; i < bubbleCount; i++) {
       const b = document.createElement('div');
       b.classList.add('bubble');
       const size = rand(4, 14);
