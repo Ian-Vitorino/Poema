@@ -475,6 +475,26 @@
       <span class="note-sign">— com amor ❤️</span>
     </div>
   </div>
+  <div class="personal-note" id="note-4">
+    <div class="personal-note-card">
+      <div class="personal-note-header">
+        <span class="personal-note-icon">💌</span>
+        <span class="personal-note-title">Pra você</span>
+      </div>
+      <p>Sua mensagem aqui...</p>
+      <span class="note-sign">— com amor ❤️</span>
+    </div>
+  </div>
+  <div class="personal-note" id="note-3">
+    <div class="personal-note-card">
+      <div class="personal-note-header">
+        <span class="personal-note-icon">💌</span>
+        <span class="personal-note-title">Pra você</span>
+      </div>
+      <p>Preciso pensar...</p>
+      <span class="note-sign">— com amor ❤️</span>
+    </div>
+  </div>
   <div class="glow-left"></div>
   <div class="glow-right"></div>
 
@@ -518,25 +538,37 @@
         </div>
       </div>
 
-      <div class="music-card">
+      <div class="music-card" data-audio="Musicas/WhatsApp Audio 2026-03-13 at 09.13.25.mpeg">
         <span class="music-number">3</span>
         <div class="music-cover">
-          <div class="cover-placeholder">🎵</div>
+          <img src="Fotos-musicas/download (2).jpg" alt="Capa">
         </div>
         <div class="music-info">
-          <span class="music-name">Nome da Música</span>
-          <span class="music-artist">Nome do Artista</span>
+          <span class="music-name">Doce Veneno</span>
+          <span class="music-artist">Costa Gold</span>
+        </div>
+        <span class="music-play">▶</span>
+        <div class="music-progress">
+          <span class="progress-time progress-current">0:00</span>
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <span class="progress-time progress-duration">0:00</span>
         </div>
       </div>
 
-      <div class="music-card">
+      <div class="music-card" data-audio="Musicas/WhatsApp Audio 2026-03-13 at 09.13.30.mpeg">
         <span class="music-number">4</span>
         <div class="music-cover">
-          <div class="cover-placeholder">🎵</div>
+          <img src="Fotos-musicas/images (2).jpg" alt="Capa">
         </div>
         <div class="music-info">
-          <span class="music-name">Nome da Música</span>
-          <span class="music-artist">Nome do Artista</span>
+          <span class="music-name">Rubi</span>
+          <span class="music-artist">Andrade, Kawe</span>
+        </div>
+        <span class="music-play">▶</span>
+        <div class="music-progress">
+          <span class="progress-time progress-current">0:00</span>
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <span class="progress-time progress-duration">0:00</span>
         </div>
       </div>
 
@@ -577,7 +609,9 @@
     const vinylLabel = vinylDisc.querySelector('.disc-label img');
     const personalNotes = {
       'Musicas/WhatsApp Audio 2026-03-13 at 00.47.20.mpeg': document.getElementById('note-1'),
-      'Musicas/WhatsApp Audio 2026-03-13 at 01.45.30.mpeg': document.getElementById('note-2')
+      'Musicas/WhatsApp Audio 2026-03-13 at 01.45.30.mpeg': document.getElementById('note-2'),
+      'Musicas/WhatsApp Audio 2026-03-13 at 09.13.25.mpeg': document.getElementById('note-3'),
+      'Musicas/WhatsApp Audio 2026-03-13 at 09.13.30.mpeg': document.getElementById('note-4')
     };
 
     let activeNote = null;
@@ -695,10 +729,20 @@
     function showBgPreview(card) {
       const coverImg = card.querySelector('.music-cover img');
       if (coverImg) {
-        bgImg.src = coverImg.src;
         vinylLabel.src = coverImg.src;
-        bgPreview.classList.add('active');
         vinylDisc.classList.add('active');
+
+        // Se já está ativo com outra imagem, faz fade out > troca > fade in
+        if (bgPreview.classList.contains('active') && bgImg.src !== coverImg.src) {
+          bgPreview.classList.remove('active');
+          setTimeout(() => {
+            bgImg.src = coverImg.src;
+            bgPreview.classList.add('active');
+          }, 400);
+        } else {
+          bgImg.src = coverImg.src;
+          bgPreview.classList.add('active');
+        }
       }
       const src = card.getAttribute('data-audio');
       if (activeNote) activeNote.classList.remove('active');
