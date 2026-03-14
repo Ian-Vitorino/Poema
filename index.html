@@ -424,34 +424,6 @@
         bottomIcons.style.animation = `fadeIn 0.8s ease forwards`;
       }, signatureDelay + 1200);
 
-      // Sequência secreta: sol, lua, sol, sol, estrela
-      const secretSequence = ['sol', 'lua', 'sol', 'sol', 'estrela'];
-      let currentStep = 0;
-
-      document.querySelectorAll('.bottom-icons span').forEach(icon => {
-        icon.addEventListener('click', () => {
-          const clicked = icon.getAttribute('data-icon');
-
-          if (clicked === secretSequence[currentStep]) {
-            currentStep++;
-            // Feedback visual sutil
-            icon.style.transform = 'scale(1.3)';
-            setTimeout(() => { icon.style.transform = ''; }, 300);
-
-            if (currentStep === secretSequence.length) {
-              currentStep = 0;
-              openSecretModal();
-            }
-          } else {
-            currentStep = 0;
-            // Verifica se o clique errado é o início da sequência
-            if (clicked === secretSequence[0]) {
-              currentStep = 1;
-            }
-          }
-        });
-      });
-
       function openSecretModal() {
         const overlay = document.getElementById('secretOverlay');
         overlay.style.display = 'flex';
@@ -467,34 +439,45 @@
         setTimeout(() => { overlay.style.display = 'none'; }, 500);
       });
 
-      // Sequências secretas dos ícones
+      // Todas as sequências secretas unificadas
       const sequences = [
+        { combo: ['sol', 'lua', 'sol', 'sol', 'estrela'], action: 'modal' },
         { combo: ['sol', 'estrela', 'estrela', 'estrela', 'lua'], url: 'galeria.html' },
         { combo: ['sol', 'sol', 'lua'], url: 'poemas.html' },
         { combo: ['sol', 'lua', 'sol', 'lua', 'estrela'], url: 'musicas.html' },
         { combo: ['estrela', 'estrela', 'lua', 'lua', 'sol', 'sol', 'estrela', 'sol', 'lua'], url: 'trechos.html' },
         { combo: ['estrela', 'sol', 'estrela', 'lua', 'estrela'], url: 'elogios.html' }
       ];
-      let seqSteps = sequences.map(() => 0);
+      let clickHistory = [];
+      const maxLen = Math.max(...sequences.map(s => s.combo.length));
 
       document.querySelectorAll('.bottom-icons span').forEach(icon => {
         icon.addEventListener('click', () => {
           const clicked = icon.getAttribute('data-icon');
+          clickHistory.push(clicked);
+          if (clickHistory.length > maxLen) clickHistory.shift();
 
-          sequences.forEach((seq, i) => {
-            if (clicked === seq.combo[seqSteps[i]]) {
-              seqSteps[i]++;
-              if (seqSteps[i] === seq.combo.length) {
-                seqSteps[i] = 0;
-                window.location.href = seq.url;
-              }
-            } else {
-              seqSteps[i] = 0;
-              if (clicked === seq.combo[0]) {
-                seqSteps[i] = 1;
+          // Feedback visual sutil
+          icon.style.transform = 'scale(1.3)';
+          setTimeout(() => { icon.style.transform = ''; }, 300);
+
+          // Verifica sequências da mais longa pra mais curta (prioridade)
+          const sorted = [...sequences].sort((a, b) => b.combo.length - a.combo.length);
+          for (const seq of sorted) {
+            const len = seq.combo.length;
+            if (clickHistory.length >= len) {
+              const tail = clickHistory.slice(-len);
+              if (tail.every((v, i) => v === seq.combo[i])) {
+                clickHistory = [];
+                if (seq.action === 'modal') {
+                  openSecretModal();
+                } else {
+                  window.location.href = seq.url;
+                }
+                return;
               }
             }
-          });
+          }
         });
       });
 
