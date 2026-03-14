@@ -283,18 +283,17 @@
     /* Disco de vinil girando */
     .vinyl-disc {
       position: fixed;
-      left: -200px;
+      left: -450px;
       top: 50%;
       transform: translateY(-50%);
       width: 400px;
       height: 400px;
       z-index: 1;
       pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.8s ease;
+      transition: left 0.6s ease;
     }
     .vinyl-disc.active {
-      opacity: 1;
+      left: -200px;
     }
     .vinyl-disc .disc {
       width: 100%;
@@ -435,6 +434,9 @@
       .vinyl-disc {
         width: 300px;
         height: 300px;
+        left: -350px;
+      }
+      .vinyl-disc.active {
         left: -150px;
       }
       .vinyl-disc .disc-label {
@@ -766,25 +768,42 @@
       });
     });
 
+    let vinylBusy = false;
+
     function showBgPreview(card) {
       const coverImg = card.querySelector('.music-cover img');
-      if (coverImg) {
-        vinylLabel.src = coverImg.src;
-        vinylDisc.classList.add('active');
+      if (!coverImg) return;
 
-        // Se já está ativo com outra imagem, faz fade out > troca > fade in
-        if (bgPreview.classList.contains('active') && bgImg.src !== coverImg.src) {
-          bgPreview.classList.remove('active');
-          setTimeout(() => {
-            bgImg.src = coverImg.src;
-            bgPreview.classList.add('active');
-          }, 400);
-        } else {
+      const src = card.getAttribute('data-audio');
+
+      // Background fade
+      if (bgPreview.classList.contains('active') && bgImg.src !== coverImg.src) {
+        bgPreview.classList.remove('active');
+        setTimeout(() => {
           bgImg.src = coverImg.src;
           bgPreview.classList.add('active');
-        }
+        }, 400);
+      } else {
+        bgImg.src = coverImg.src;
+        bgPreview.classList.add('active');
       }
-      const src = card.getAttribute('data-audio');
+
+      // Vinil slide
+      if (vinylDisc.classList.contains('active')) {
+        // Sai, troca capa, entra
+        vinylBusy = true;
+        vinylDisc.classList.remove('active');
+        setTimeout(() => {
+          vinylLabel.src = coverImg.src;
+          vinylDisc.classList.add('active');
+          vinylBusy = false;
+        }, 650);
+      } else {
+        vinylLabel.src = coverImg.src;
+        vinylDisc.classList.add('active');
+      }
+
+      // Nota pessoal
       if (activeNote) activeNote.classList.remove('active');
       if (personalNotes[src]) {
         personalNotes[src].classList.add('active');
@@ -800,37 +819,84 @@
       if (activeNote) { activeNote.classList.remove('active'); activeNote = null; }
     }
 
+    function fadeOut(audio, duration, callback) {
+      const steps = 20;
+      const interval = duration / steps;
+      const volumeStep = audio.volume / steps;
+      const fade = setInterval(() => {
+        if (audio.volume - volumeStep <= 0) {
+          audio.volume = 0;
+          audio.pause();
+          clearInterval(fade);
+          if (callback) callback();
+        } else {
+          audio.volume -= volumeStep;
+        }
+      }, interval);
+    }
+
+    function fadeIn(audio, duration) {
+      audio.volume = 0;
+      audio.play();
+      const steps = 20;
+      const interval = duration / steps;
+      const volumeStep = 1 / steps;
+      const fade = setInterval(() => {
+        if (audio.volume + volumeStep >= 1) {
+          audio.volume = 1;
+          clearInterval(fade);
+        } else {
+          audio.volume += volumeStep;
+        }
+      }, interval);
+    }
+
     document.querySelectorAll('.music-card[data-audio]').forEach(card => {
       card.addEventListener('click', (e) => {
         if (e.target.closest('.progress-bar')) return;
         const src = card.getAttribute('data-audio');
         const playIcon = card.querySelector('.music-play');
 
-        // Se clicou no card que já está tocando, pausa
+        // Se clicou no card que já está tocando, pausa com fade out
         if (currentCard === card && currentAudio && !currentAudio.paused) {
-          currentAudio.pause();
           card.classList.remove('playing');
           playIcon.textContent = '▶';
           hideBgPreview();
           stopProgress();
+          fadeOut(currentAudio, 800, () => {
+            resetProgress(card);
+            currentAudio = null;
+            currentCard = null;
+          });
           return;
         }
 
-        // Para o áudio anterior se existir
-        if (currentAudio) {
-          currentAudio.pause();
+        // Crossfade: fade out do anterior + fade in do novo
+        if (currentAudio && !currentAudio.paused) {
+          const oldAudio = currentAudio;
+          const oldCard = currentCard;
+          fadeOut(oldAudio, 800, () => {
+            if (oldCard) resetProgress(oldCard);
+          });
+          if (currentCard) {
+            currentCard.classList.remove('playing');
+            currentCard.querySelector('.music-play').textContent = '▶';
+          }
           stopProgress();
+        } else if (currentAudio) {
+          currentAudio.pause();
           if (currentCard) {
             currentCard.classList.remove('playing');
             currentCard.querySelector('.music-play').textContent = '▶';
             resetProgress(currentCard);
           }
+          stopProgress();
         }
 
-        // Toca o novo
+        // Toca o novo com fade in
         currentAudio = new Audio(src);
         currentCard = card;
-        currentAudio.play();
+        fadeIn(currentAudio, 800);
         card.classList.add('playing');
         playIcon.textContent = '⏸';
         showBgPreview(card);
