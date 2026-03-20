@@ -20,11 +20,14 @@ Poema/
 ├── musicas.html        ← Template de músicas (6 cards vazios)
 ├── trechos.html        ← Template de trechos de letras (8 blocos vazios)
 ├── elogios.html        ← Template de elogios (8 accordion items com placeholder)
+├── galaxia.html        ← Galáxia interativa (frases orbitando buraco negro)
 ├── combinacoes.txt     ← Lista das combinações secretas
 ├── TODO.md             ← Lista de pendências
 ├── CONTEXTO.md         ← Este arquivo
 ├── package.json        ← "dev": "npx serve . -l 7000"
-└── galeria/            ← 7 fotos (6 galeria + 1 oculta)
+├── galeria/            ← 7 fotos (6 galeria + 1 oculta)
+├── Musicas/            ← 6 arquivos de áudio (.mpeg)
+└── Fotos-musicas/      ← Imagens de capa das músicas
 ```
 
 ---
@@ -39,6 +42,7 @@ Poema/
 | Background verde | Superfície | `#0d1f15` |
 | Texto claro | Corpo | `#c8dbe6` |
 | Accent rgba | Bordas, glows | `rgba(78, 205, 196, ...)` |
+| Roxo galáxia | Glow/brilho galáxia | `rgba(180, 120, 255, ...)` |
 
 ---
 
@@ -145,6 +149,7 @@ Cards usam delay incremental: `animation-delay: 0.2s, 0.4s, 0.6s...`
 | Sol, Lua, Sol, Lua, Estrela | musicas.html |
 | Estrela, Estrela, Lua, Lua, Sol, Sol, Estrela, Sol, Lua | trechos.html |
 | Estrela, Sol, Estrela, Lua, Estrela | elogios.html |
+| Lua, Lua, Lua, Sol | galaxia.html |
 
 Easter egg adicional: digitar "te amo" (sem espaço) na tela principal redireciona pra galeria.
 
@@ -166,23 +171,23 @@ Easter egg adicional: digitar "te amo" (sem espaço) na tela principal redirecio
 - Texto "esse cara aqui te ama ó →" e "te amo tanto, fofinha ❤️"
 - Título: "Minha Princesinha 💕"
 
-### 🔧 poemas.html — Em andamento
+### ✅ poemas.html — Completa
 - Tema: espaço/lua com partículas CSS (dots, estrelas, luas, nebulosas)
 - Poemas prontos: "Sol e Lua" (8 versos), "Fases da Lua" (4 poemas de 4 versos)
 - Link "tem mais..." apontando pra poemas2.html
 - Gradiente: azul no topo → verde embaixo (fixo)
 
-### 🔧 poemas2.html — Em andamento
+### ✅ poemas2.html — Completa
 - Tema: oceano/fundo do mar
 - Gradiente: verde no topo → azul escuro embaixo (acompanha scroll)
 - Decorações: fundo do mar com corais e algas (2 camadas), peixes nadando, tubarão com cardume, águas-vivas, submarino, bolhas subindo
-- Poema pronto: "Mar Cristalino" (8 versos), "Infinidade do Horizonte" (1 de 4 pronto, faltam 3)
-- 3 cards ainda com placeholder
+- 5 poemas completos: "Mar Cristalino", "Infinidade do Horizonte" + 3 poemas curtos sem título
 
-### ❌ musicas.html — Template vazio
-- 6 cards de música com placeholders (número, capa, nome, artista)
-- Layout vertical estilo playlist
-- **Precisa**: definir 6 músicas, criar pasta `capas/`, elaborar ideia diferenciada
+### ✅ musicas.html — Funcional
+- 6 cards de música com player integrado
+- Áudios na pasta `Musicas/` (6 arquivos .mpeg)
+- Capas na pasta `Fotos-musicas/`
+- Layout vertical estilo playlist com animação vinil
 
 ### ❌ trechos.html — Template vazio
 - 8 blocos com trecho de letra + mensagem pessoal + divisores
@@ -195,12 +200,33 @@ Easter egg adicional: digitar "te amo" (sem espaço) na tela principal redirecio
 - Título: "Tudo Sobre Você 💕", subtítulo: "cada pedacinho seu é perfeito"
 - **Precisa**: escrever texto personalizado para cada item
 
+### ✅ galaxia.html — Completa
+- Tema: espaço profundo (#020010) com paleta roxa
+- **Animação de entrada**: estrelas vêm de fora da tela → formam coração → pulsam → implodem pro centro → flash + explosão massiva → galáxia aparece
+- **Buraco negro central** com glow roxo permanente, disco de acreção rotativo
+- **3 órbitas** com 9 frases reais orbitando (contra-rotação mantém texto horizontal)
+- **Drag and drop**: elemento fantasma segue o mouse livremente, ao soltar volta animado pra órbita
+- **Modal personalizado**: clique na frase abre modal com a frase como título + texto pessoal explicando o significado
+- **Hover**: pausa a órbita da frase
+- Estrelas de fundo (200) + partículas flutuantes roxas (15)
+- Responsivo (media query 600px)
+- **Frases preenchidas (9/9)**:
+  1. "Isso só mostra que não somos galinhas"
+  2. "Eu amo vocês dois"
+  3. "Se você chegar primeiro, me espera pra gente explorar juntos"
+  4. "Eu estou com você porque eu te amo, você me faz feliz, você é tão bom pra mim"
+  5. "Eu nunca vivi isso"
+  6. "Minha ficha caiu de que tá acontecendo tudo o que eu sempre quis"
+  7. "Devia ter te dado mais beijinhos"
+  8. "Eu me importo eu"
+  9. "Me sinto segura com você. Você não é qualquer um"
+
 ---
 
 ## Pendências Gerais (TODO.md)
-- [ ] Adicionar áudio com botão play/pause (tag `<audio>` nativa do HTML)
+- [ ] Preencher trechos.html (8 trechos + 8 mensagens)
+- [ ] Preencher elogios.html (8 textos personalizados)
 - [ ] Revisar textos do index.html
-- [ ] Adicionar mais fotos na galeria (opcional)
 - [ ] Push final e verificar deploy na Vercel
 
 ---
@@ -209,6 +235,7 @@ Easter egg adicional: digitar "te amo" (sem espaço) na tela principal redirecio
 - Todas as páginas têm link `← Voltar ao poema` → `index.html`
 - Manter consistência visual: mesmos cards, fontes, separadores ♥, animações
 - Gradiente do body varia por página mas sempre na paleta azul/verde escuro
+- Galáxia usa paleta roxa diferenciada (#020010, rgba(180,120,255,...))
 - Animações de entrada rápidas (~0.5s delay entre cards)
-- Site é mobile-first com media query em `480px`
+- Site é mobile-first com media query em `480px` (galáxia em `600px`)
 - Não usar frameworks, tudo em HTML/CSS/JS puro

@@ -1,10 +1,5 @@
 # TODO - Projeto Poema
 
-## Página de Poemas (poemas.html)
-- [ ] Criar Poema 1 — título e versos
-- [ ] Criar Poema 2 — título e versos
-- [ ] Criar Poema 3 — título e versos
-
 ## Página de Músicas (musicas.html)
 - [ ] Definir as 6 músicas — nome, artista e capa
 - [ ] Criar pasta capas/ com as imagens
@@ -16,7 +11,15 @@
 
 ## Página de Elogios (elogios.html)
 - [ ] Definir quais itens vão na lista (revisar os atuais)
-- [ ] Escrever texto para cada item
+- [ ] Escrever texto personalizado para cada item
+
+## Página da Galáxia (galaxia.html)
+- [x] Animação de entrada (estrelas → coração → implosão → explosão)
+- [x] Frases orbitando com contra-rotação
+- [x] Modal personalizado ao clicar nas frases (9 frases preenchidas)
+- [x] Drag and drop com elemento fantasma + retorno à órbita
+- [x] Buraco negro com glow permanente
+- [ ] Preencher frases restantes se necessário (atualmente 9 de 9 completas)
 
 ## Geral
 - [ ] Adicionar áudio com botão play/pause

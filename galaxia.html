@@ -62,6 +62,11 @@
         0 0 120px 40px rgba(60, 0, 140, 0.15),
         inset 0 0 40px 10px rgba(0, 0, 0, 1);
       z-index: 10;
+      box-shadow:
+        0 0 80px 30px rgba(120, 40, 200, 0.5),
+        0 0 160px 60px rgba(80, 0, 180, 0.25),
+        0 0 200px 80px rgba(60, 0, 140, 0.1),
+        inset 0 0 40px 10px rgba(0, 0, 0, 1);
     }
     .black-hole::before {
       content: '';
@@ -215,7 +220,6 @@
       text-shadow: 0 0 30px rgba(140, 80, 220, 0.3);
       z-index: 20;
       opacity: 0;
-      animation: fadeIn 1.5s ease forwards 0.5s;
     }
     .galaxy-subtitle {
       position: fixed;
@@ -228,7 +232,6 @@
       font-size: 0.9rem;
       z-index: 20;
       opacity: 0;
-      animation: fadeIn 1.5s ease forwards 1s;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
@@ -336,6 +339,61 @@
       background: rgba(120, 60, 200, 0.25);
     }
 
+    /* Animação de entrada */
+    .galaxy, .galaxy-title, .galaxy-subtitle, .back-btn {
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    .galaxy.visible, .galaxy-title.visible, .galaxy-subtitle.visible, .back-btn.visible {
+      opacity: 1;
+    }
+    .galaxy-title.visible {
+      animation: fadeIn 1.5s ease forwards;
+    }
+    .galaxy-subtitle.visible {
+      animation: fadeIn 1.5s ease forwards;
+    }
+    .intro-star {
+      position: fixed;
+      border-radius: 50%;
+      background: white;
+      pointer-events: none;
+      z-index: 60;
+      box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.8), 0 0 12px 4px rgba(180, 120, 255, 0.4);
+      transition: left 2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  top 2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  opacity 0.4s ease;
+    }
+    .intro-star.implode {
+      transition: left 0.7s cubic-bezier(0.55, 0.06, 0.68, 0.19),
+                  top 0.7s cubic-bezier(0.55, 0.06, 0.68, 0.19),
+                  width 0.7s ease,
+                  height 0.7s ease;
+    }
+    .intro-star.explode {
+      transition: left 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+                  top 1.2s cubic-bezier(0.22, 1, 0.36, 1),
+                  opacity 1.2s ease 0.3s,
+                  box-shadow 0.5s ease,
+                  width 1.2s ease,
+                  height 1.2s ease;
+      box-shadow: 0 0 25px 10px rgba(255, 255, 255, 0.8), 0 0 50px 20px rgba(180, 120, 255, 0.6);
+      opacity: 0;
+    }
+    .intro-flash {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 0; height: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(220,180,255,0.7) 30%, rgba(180,120,255,0.4) 55%, transparent 75%);
+      z-index: 59;
+      pointer-events: none;
+      transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                  height 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                  opacity 0.8s ease 0.4s;
+    }
+
     @media (max-width: 600px) {
       .galaxy { width: 100vw; height: 100vw; }
       .orbit-1 { width: 200px; height: 200px; }
@@ -415,6 +473,131 @@
   <a href="index.html" class="back-btn">Voltar ao poema</a>
 
   <script>
+    // ---- Animação de entrada: estrelas formam coração e explodem ----
+    (function introAnimation() {
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+      const totalStars = 80;
+      const stars = [];
+
+      // Gera pontos do coração (fórmula paramétrica)
+      function heartPoint(t, scale) {
+        const x = 16 * Math.pow(Math.sin(t), 3);
+        const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+        return { x: cx + x * scale, y: cy + y * scale };
+      }
+
+      // Cria estrelas em posições aleatórias fora da tela
+      for (let i = 0; i < totalStars; i++) {
+        const star = document.createElement('div');
+        star.className = 'intro-star';
+        const size = Math.random() * 3 + 2;
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
+
+        // Posição inicial: fora da tela em direção aleatória
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.max(window.innerWidth, window.innerHeight) * 0.8;
+        const startX = cx + Math.cos(angle) * dist;
+        const startY = cy + Math.sin(angle) * dist;
+        star.style.left = startX + 'px';
+        star.style.top = startY + 'px';
+
+        document.body.appendChild(star);
+        stars.push(star);
+      }
+
+      // Fase 1: Estrelas convergem pro coração (após breve delay)
+      setTimeout(() => {
+        const scale = Math.min(window.innerWidth, window.innerHeight) < 600 ? 5 : 8;
+        stars.forEach((star, i) => {
+          const t = (i / totalStars) * Math.PI * 2;
+          const target = heartPoint(t, scale);
+          // Pequena variação pra ficar orgânico
+          star.style.left = (target.x + (Math.random() - 0.5) * 6) + 'px';
+          star.style.top = (target.y + (Math.random() - 0.5) * 6) + 'px';
+        });
+      }, 300);
+
+      // Fase 2: Coração pulsa brevemente
+      setTimeout(() => {
+        const scale2 = (Math.min(window.innerWidth, window.innerHeight) < 600 ? 5 : 8) * 1.15;
+        stars.forEach((star, i) => {
+          star.style.transition = 'left 0.4s ease, top 0.4s ease';
+          const t = (i / totalStars) * Math.PI * 2;
+          const target = heartPoint(t, scale2);
+          star.style.left = (target.x + (Math.random() - 0.5) * 4) + 'px';
+          star.style.top = (target.y + (Math.random() - 0.5) * 4) + 'px';
+        });
+      }, 2600);
+
+      // Fase 2b: Pulso volta
+      setTimeout(() => {
+        const scale = Math.min(window.innerWidth, window.innerHeight) < 600 ? 5 : 8;
+        stars.forEach((star, i) => {
+          star.style.transition = 'left 0.4s ease, top 0.4s ease';
+          const t = (i / totalStars) * Math.PI * 2;
+          const target = heartPoint(t, scale);
+          star.style.left = (target.x + (Math.random() - 0.5) * 4) + 'px';
+          star.style.top = (target.y + (Math.random() - 0.5) * 4) + 'px';
+        });
+      }, 3000);
+
+      // Fase 3: Implosão — todas as estrelas convergem pra um único ponto no centro
+      setTimeout(() => {
+        stars.forEach((star) => {
+          star.classList.add('implode');
+          star.style.left = cx + 'px';
+          star.style.top = cy + 'px';
+          star.style.width = '3px';
+          star.style.height = '3px';
+        });
+      }, 3600);
+
+      // Fase 4: Flash de luz + Explosão massiva pra fora
+      setTimeout(() => {
+        // Diagonal da tela = distância máxima que uma estrela precisa percorrer
+        const screenDiag = Math.sqrt(window.innerWidth ** 2 + window.innerHeight ** 2);
+
+        // Flash de luz no centro — cobre a tela inteira
+        const flash = document.createElement('div');
+        flash.className = 'intro-flash';
+        document.body.appendChild(flash);
+        requestAnimationFrame(() => {
+          const flashSize = screenDiag * 2.5;
+          flash.style.width = flashSize + 'px';
+          flash.style.height = flashSize + 'px';
+          flash.style.opacity = '0';
+        });
+
+        // Estrelas explodem cobrindo toda a tela e além
+        stars.forEach((star) => {
+          star.classList.remove('implode');
+          star.classList.add('explode');
+          const angle = Math.random() * Math.PI * 2;
+          const dist = screenDiag * 0.6 + Math.random() * screenDiag * 0.5;
+          star.style.left = (cx + Math.cos(angle) * dist) + 'px';
+          star.style.top = (cy + Math.sin(angle) * dist) + 'px';
+          star.style.width = (Math.random() * 6 + 4) + 'px';
+          star.style.height = star.style.width;
+        });
+
+        // Revela a galáxia junto com a explosão
+        setTimeout(() => {
+          document.querySelector('.galaxy').classList.add('visible');
+          document.querySelector('.galaxy-title').classList.add('visible');
+          document.querySelector('.galaxy-subtitle').classList.add('visible');
+          document.querySelector('.back-btn').classList.add('visible');
+        }, 200);
+
+        // Limpa tudo
+        setTimeout(() => {
+          stars.forEach(s => s.remove());
+          flash.remove();
+        }, 1200);
+      }, 4400);
+    })();
+
     // Gerar estrelas de fundo
     const starsContainer = document.getElementById('stars');
     for (let i = 0; i < 200; i++) {

@@ -7,3 +7,6 @@ COMBINAÇÕES SECRETAS
 4. Sol, Lua, Sol, Lua, Estrela        → Página de músicas
 5. Estrela, Estrela, Lua, Lua, Sol, Sol, Estrela, Sol, Lua → Trechos & mensagens
 6. Estrela, Sol, Estrela, Lua, Estrela → Elogios
+7. Lua, Lua, Lua, Sol                  → Galáxia
+
+Easter egg: digitar "te amo" na tela principal → Galeria
