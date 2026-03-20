@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minha Galáxia</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      background: #020010;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-family: 'Lora', serif;
+    }
+
+    /* Estrelas de fundo */
+    .stars {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      background: white;
+      animation: twinkleStar linear infinite alternate;
+    }
+    @keyframes twinkleStar {
+      0% { opacity: 0.2; }
+      100% { opacity: 1; }
+    }
+
+    /* Container da galáxia */
+    .galaxy {
+      position: relative;
+      width: 100vmin;
+      height: 100vmin;
+      max-width: 900px;
+      max-height: 900px;
+      z-index: 1;
+    }
+
+    /* Buraco negro central */
+    .black-hole {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #000 0%, #000 40%, transparent 70%);
+      box-shadow:
+        0 0 60px 20px rgba(80, 0, 160, 0.3),
+        0 0 120px 40px rgba(60, 0, 140, 0.15),
+        inset 0 0 40px 10px rgba(0, 0, 0, 1);
+      z-index: 10;
+    }
+    .black-hole::before {
+      content: '';
+      position: absolute;
+      top: -15px; left: -15px;
+      right: -15px; bottom: -15px;
+      border-radius: 50%;
+      border: 2px solid rgba(180, 120, 255, 0.2);
+      box-shadow: 0 0 30px rgba(180, 120, 255, 0.15);
+      animation: pulseHole 3s ease-in-out infinite;
+    }
+    .black-hole::after {
+      content: '';
+      position: absolute;
+      top: -30px; left: -30px;
+      right: -30px; bottom: -30px;
+      border-radius: 50%;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0%,
+        rgba(180, 120, 255, 0.08) 25%,
+        transparent 50%,
+        rgba(100, 180, 255, 0.06) 75%,
+        transparent 100%
+      );
+      animation: rotateAccretion 8s linear infinite;
+    }
+    @keyframes pulseHole {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.1); opacity: 1; }
+    }
+    @keyframes rotateAccretion {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Disco de acreção */
+    .accretion-disc {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      border: 1px solid rgba(180, 120, 255, 0.1);
+      background: radial-gradient(circle, transparent 35%, rgba(120, 60, 200, 0.05) 50%, transparent 65%);
+      animation: rotateAccretion 12s linear infinite;
+      z-index: 5;
+    }
+    .accretion-disc::before {
+      content: '';
+      position: absolute;
+      top: -2px; left: -2px;
+      right: -2px; bottom: -2px;
+      border-radius: 50%;
+      border: 1px solid rgba(100, 180, 255, 0.08);
+    }
+
+    /* Órbitas */
+    .orbit {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      border-radius: 50%;
+      border: 1px solid rgba(180, 120, 255, 0.06);
+      transform: translate(-50%, -50%);
+      z-index: 2;
+    }
+    .orbit-1 { width: 300px; height: 300px; }
+    .orbit-2 { width: 420px; height: 420px; }
+    .orbit-3 { width: 540px; height: 540px; }
+    .orbit-4 { width: 660px; height: 660px; }
+
+    /* Frases orbitando */
+    .phrase-orbit {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-origin: 0 0;
+      z-index: 6;
+      animation: orbitSpin linear infinite;
+    }
+    @keyframes orbitSpin {
+      from { transform: rotate(var(--start-angle)); }
+      to { transform: rotate(calc(var(--start-angle) + 360deg)); }
+    }
+
+    .phrase {
+      position: absolute;
+      white-space: nowrap;
+      transform: translate(-50%, -50%) rotate(0deg);
+      font-family: 'Lora', serif;
+      font-style: italic;
+      color: rgba(200, 190, 230, 0.8);
+      font-size: 0.9rem;
+      text-shadow: 0 0 10px rgba(180, 120, 255, 0.4), 0 0 30px rgba(100, 60, 200, 0.15);
+      cursor: grab;
+      transition: color 0.4s ease, text-shadow 0.4s ease, background 0.4s ease, border-color 0.4s ease;
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: rgba(20, 10, 40, 0.4);
+      border: 1px solid rgba(180, 120, 255, 0.1);
+      backdrop-filter: blur(4px);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .phrase.hidden-drag {
+      opacity: 0.2;
+    }
+    .drag-ghost {
+      position: fixed;
+      z-index: 50;
+      white-space: nowrap;
+      font-family: 'Lora', serif;
+      font-style: italic;
+      color: rgba(220, 200, 255, 1);
+      font-size: 0.9rem;
+      text-shadow: 0 0 15px rgba(180, 120, 255, 0.7), 0 0 40px rgba(100, 60, 200, 0.3);
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: rgba(40, 20, 80, 0.6);
+      border: 1px solid rgba(180, 120, 255, 0.3);
+      backdrop-filter: blur(4px);
+      pointer-events: none;
+      cursor: grabbing;
+      transform: translate(-50%, -50%);
+      transition: none;
+    }
+    .drag-ghost.returning {
+      transition: left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  opacity 0.5s ease;
+    }
+    .phrase:hover {
+      color: rgba(220, 200, 255, 1);
+      text-shadow: 0 0 15px rgba(180, 120, 255, 0.7), 0 0 40px rgba(100, 60, 200, 0.3);
+      background: rgba(40, 20, 80, 0.5);
+      border-color: rgba(180, 120, 255, 0.3);
+    }
+
+    /* Título */
+    .galaxy-title {
+      position: fixed;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Dancing Script', cursive;
+      color: rgba(180, 140, 255, 0.7);
+      font-size: 2rem;
+      text-shadow: 0 0 30px rgba(140, 80, 220, 0.3);
+      z-index: 20;
+      opacity: 0;
+      animation: fadeIn 1.5s ease forwards 0.5s;
+    }
+    .galaxy-subtitle {
+      position: fixed;
+      top: 75px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Lora', serif;
+      font-style: italic;
+      color: rgba(180, 160, 220, 0.4);
+      font-size: 0.9rem;
+      z-index: 20;
+      opacity: 0;
+      animation: fadeIn 1.5s ease forwards 1s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* Botão voltar */
+    .back-btn {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(120, 60, 200, 0.15);
+      border: 1px solid rgba(180, 120, 255, 0.3);
+      color: rgba(180, 140, 255, 0.8);
+      font-family: 'Lora', serif;
+      font-size: 1rem;
+      padding: 12px 35px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      z-index: 20;
+    }
+    .back-btn:hover {
+      background: rgba(120, 60, 200, 0.25);
+      transform: translateX(-50%) translateY(-2px);
+    }
+
+    /* Partículas flutuantes */
+    .particle {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      animation: floatParticle linear infinite;
+    }
+    @keyframes floatParticle {
+      0% { transform: translateY(0) translateX(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100vh) translateX(30px); opacity: 0; }
+    }
+
+    /* Modal da frase */
+    .phrase-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(2, 0, 16, 0.9);
+      z-index: 100;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .phrase-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+    .phrase-modal {
+      background: linear-gradient(135deg, #0a0520 0%, #150a30 50%, #0a0520 100%);
+      border: 1px solid rgba(180, 120, 255, 0.25);
+      border-radius: 24px;
+      padding: 45px 40px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 0 80px rgba(120, 60, 200, 0.2), 0 30px 80px rgba(0, 0, 0, 0.5);
+      transform: scale(0.8) translateY(20px);
+      transition: transform 0.4s ease;
+    }
+    .phrase-overlay.active .phrase-modal {
+      transform: scale(1) translateY(0);
+    }
+    .phrase-modal-quote {
+      font-family: 'Dancing Script', cursive;
+      color: rgba(180, 140, 255, 0.9);
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px rgba(140, 80, 220, 0.4);
+    }
+    .phrase-modal-text {
+      font-family: 'Lora', serif;
+      font-style: italic;
+      color: rgba(200, 190, 230, 0.85);
+      font-size: 1.05rem;
+      line-height: 1.9;
+    }
+    .phrase-modal-close {
+      margin-top: 30px;
+      background: rgba(120, 60, 200, 0.15);
+      border: 1px solid rgba(180, 120, 255, 0.3);
+      color: rgba(180, 140, 255, 0.8);
+      font-family: 'Lora', serif;
+      font-size: 1rem;
+      padding: 10px 30px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .phrase-modal-close:hover {
+      background: rgba(120, 60, 200, 0.25);
+    }
+
+    @media (max-width: 600px) {
+      .galaxy { width: 100vw; height: 100vw; }
+      .orbit-1 { width: 200px; height: 200px; }
+      .orbit-2 { width: 280px; height: 280px; }
+      .orbit-3 { width: 360px; height: 360px; }
+      .orbit-4 { width: 440px; height: 440px; }
+      .black-hole { width: 80px; height: 80px; }
+      .accretion-disc { width: 150px; height: 150px; }
+      .phrase { font-size: 0.7rem; padding: 5px 10px; }
+      .galaxy-title { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="galaxy-title">Minha Galáxia</h1>
+  <p class="galaxy-subtitle">frases suas que eu nunca vou esquecer</p>
+
+  <div class="stars" id="stars"></div>
+
+  <div class="galaxy">
+    <!-- Órbitas visuais -->
+    <div class="orbit orbit-1"></div>
+    <div class="orbit orbit-2"></div>
+    <div class="orbit orbit-3"></div>
+
+    <!-- Disco de acreção -->
+    <div class="accretion-disc"></div>
+
+    <!-- Buraco negro -->
+    <div class="black-hole"></div>
+
+    <!-- Frases orbitando — órbita 1 (mais perto) -->
+    <div class="phrase-orbit" style="--start-angle: 0deg; animation-duration: 25s;">
+      <div class="phrase" style="left: 150px; top: 0;" data-modal="Sim, isso só mostrou para mim o quão jovens e puros de mente estamos. Apesar de não sermos bons nisso, aquele momento trouxe uma sensação tão boa para mim, apesar de ter sido um momento único e 'constrangedor', gostaria de repetir muitas e muitas vezes. Eu amo seu beijo meu amor, amo ter passado por aquele momento, amo ser o sortudo que pode viver ao seu lado.">Isso só mostra que não somos galinhas</div>
+    </div>
+    <div class="phrase-orbit" style="--start-angle: 180deg; animation-duration: 25s;">
+      <div class="phrase" style="left: -150px; top: 0;" data-modal="Eu fico muito feliz de lembrar o carinho que você sempre teve pela minha família, a vontade de conhecer, o amor que você sempre sentiu, isso pra mim sempre foi muito lindo. Eu gosto desse seu lado, você faz parte da minha família, e de certo modo, vejo que minha mãe também considera isso.">Eu amo vocês dois</div>
+    </div>
+
+    <!-- Frases orbitando — órbita 2 -->
+    <div class="phrase-orbit" style="--start-angle: 45deg; animation-duration: 35s;">
+      <div class="phrase" style="left: 210px; top: 0;" data-modal="Me lembro quando nem tínhamos nada ainda e estávamos planejando o sítio. Quando você disse isso, fiquei tão emocionado. Sim, é algo besta e muito simples, mas mostra que um dos motivos para você querer ir, era a minha presença. Isso evidenciou diretamente pela primeira vez que você queria aproveitar seu tempo num lugar tão bom como o sítio do Jonh, comigo, apenas andando ao meu lado e explorando o lugar, simplesmente porque isso te faria bem.">Se você chegar primeiro, me espera pra gente explorar juntos</div>
+    </div>
+    <div class="phrase-orbit" style="--start-angle: 165deg; animation-duration: 35s;">
+      <div class="phrase" style="left: -210px; top: 0;" data-modal="Quando disse isso eu percebi o quão idiota são os motivos pelos quais me sentia inseguro. Antes eu pensava que muitas coisas poderiam afetar o jeito que você me vê, a forma em que você me interpreta, quando na verdade, desde sempre você sempre me viu como eu sou de verdade, mais atentamente do que eu mesmo. Hoje, você já me mostrou tantos traços simples e minúsculos da minha personalidade que você nota, me provam que eu era tolo por pensar assim. Eu amo você, cada milímetro meu amor, assim como você adora partes minúsculas de minha mente.">Eu estou com você porque eu te amo, você me faz feliz, você é tão bom pra mim</div>
+    </div>
+    <div class="phrase-orbit" style="--start-angle: 285deg; animation-duration: 35s;">
+      <div class="phrase" style="left: 0; top: -210px;" data-modal="Garanto pra você que eu também nunca vivi o que estamos vivendo. Nunca tive um relacionamento tão 'forte', eu percebo que minha vida está conectada na sua e a sua conectada na minha. Em outras palavras, nossas vidas agora são parcialmente conectadas, isso me deixa muito feliz.">Eu nunca vivi isso</div>
+    </div>
+
+    <!-- Frases orbitando — órbita 3 -->
+    <div class="phrase-orbit" style="--start-angle: 20deg; animation-duration: 50s;">
+      <div class="phrase" style="left: 270px; top: 0;" data-modal="Quando disse isso, eu realmente percebi 'ela vê a mesma coisa que eu'. Minha ficha caiu antes da sua, mas nós percebemos a mesma coisa, nós dois estamos vivendo algo que sempre quisemos. Esse nosso relacionamento é diferente de tudo que eu vivi antes. Você pode achar exagero, mas você me deixa genuinamente feliz.">Minha ficha caiu de que tá acontecendo tudo o que eu sempre quis</div>
+    </div>
+    <div class="phrase-orbit" style="--start-angle: 110deg; animation-duration: 50s;">
+      <div class="phrase" style="left: 0; top: 270px;" data-modal="Isso foi algo muito simples que você me disse, mas me marcou. Eu fico muito contente em saber o quanto você gosta do meu carinho e do meu amor. Quando disse isso eu percebi o quanto você gosta do tempo que passamos juntos, apesar de não ser muito, você gosta dele tanto quanto eu.">Devia ter te dado mais beijinhos</div>
+    </div>
+    <div class="phrase-orbit" style="--start-angle: 200deg; animation-duration: 50s;">
+      <div class="phrase" style="left: -270px; top: 0;" data-modal="Uma mensagem simples né? Mas nessa simplicidade que eu percebo quanto eu consigo amar cada parte sua. Essa frase simplesmente mostra que mesmo quando eu tô mal, chateado, de mau humor, você mesmo assim se importa em me ver feliz. Isso pra mim é muito significativo.">Eu me importo eu</div>
+    </div>
+    <div class="phrase-orbit" style="--start-angle: 310deg; animation-duration: 50s;">
+      <div class="phrase" style="left: 0; top: -270px;" data-modal="Essa frase mexeu comigo de uma forma extraordinária, não sei se para você isso é mensurável e se você consegue entender o que ela significa para mim. É muito revigorante saber que a pessoa que você ama, que sempre se preocupa, sempre quer estar perto, cuida, se sente segura ao seu lado, sente que você protege ela. Isso pra mim é muito reconfortante.">Me sinto segura com você. Você não é qualquer um</div>
+    </div>
+
+  </div>
+
+  <!-- Modal da frase -->
+  <div class="phrase-overlay" id="phraseOverlay">
+    <div class="phrase-modal">
+      <div class="phrase-modal-quote" id="modalQuote"></div>
+      <p class="phrase-modal-text" id="modalText"></p>
+      <button class="phrase-modal-close" id="phraseModalClose">Fechar ✦</button>
+    </div>
+  </div>
+
+  <a href="index.html" class="back-btn">Voltar ao poema</a>
+
+  <script>
+    // Gerar estrelas de fundo
+    const starsContainer = document.getElementById('stars');
+    for (let i = 0; i < 200; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      const size = Math.random() * 2 + 0.5;
+      star.style.width = size + 'px';
+      star.style.height = size + 'px';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.animationDuration = (Math.random() * 3 + 1) + 's';
+      star.style.animationDelay = (Math.random() * 3) + 's';
+      starsContainer.appendChild(star);
+    }
+
+    // Partículas flutuantes roxas
+    for (let i = 0; i < 15; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = Math.random() * 3 + 1;
+      p.style.width = size + 'px';
+      p.style.height = size + 'px';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.bottom = '-10px';
+      p.style.background = `rgba(${150 + Math.random() * 60}, ${80 + Math.random() * 60}, 255, ${Math.random() * 0.4 + 0.2})`;
+      p.style.animationDuration = (Math.random() * 15 + 10) + 's';
+      p.style.animationDelay = (Math.random() * 10) + 's';
+      document.body.appendChild(p);
+    }
+
+    // Contra-rotação: mantém frases sempre na horizontal
+    function counterRotate() {
+      document.querySelectorAll('.phrase-orbit').forEach(orbit => {
+        if (orbit.dataset.dragging === 'true') return;
+        const style = getComputedStyle(orbit);
+        const matrix = style.transform;
+        if (matrix && matrix !== 'none') {
+          const values = matrix.split('(')[1].split(')')[0].split(',');
+          const a = parseFloat(values[0]);
+          const b = parseFloat(values[1]);
+          const angle = Math.atan2(b, a);
+          const phrase = orbit.querySelector('.phrase');
+          if (phrase) {
+            phrase.style.transform = `translate(-50%, -50%) rotate(${-angle}rad)`;
+          }
+        }
+      });
+      requestAnimationFrame(counterRotate);
+    }
+    counterRotate();
+
+    // ---- Drag com elemento fantasma ----
+    let dragState = null;
+
+    function startDrag(e, phrase) {
+      e.preventDefault();
+
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const orbit = phrase.closest('.phrase-orbit');
+
+      // Pausa a órbita
+      orbit.style.animationPlayState = 'paused';
+
+      // Cria o fantasma na posição do mouse
+      const ghost = document.createElement('div');
+      ghost.className = 'drag-ghost';
+      ghost.textContent = phrase.textContent;
+      ghost.style.left = clientX + 'px';
+      ghost.style.top = clientY + 'px';
+      document.body.appendChild(ghost);
+
+      // Escurece a frase original
+      phrase.classList.add('hidden-drag');
+
+      dragState = {
+        phrase, orbit, ghost,
+        startX: clientX, startY: clientY,
+        hasDragged: false
+      };
+    }
+
+    function onDrag(e) {
+      if (!dragState) return;
+      e.preventDefault();
+
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const dx = clientX - dragState.startX;
+      const dy = clientY - dragState.startY;
+      if (Math.sqrt(dx * dx + dy * dy) > 5) dragState.hasDragged = true;
+
+      dragState.ghost.style.left = clientX + 'px';
+      dragState.ghost.style.top = clientY + 'px';
+    }
+
+    function endDrag() {
+      if (!dragState) return;
+      const { phrase, orbit, ghost, hasDragged } = dragState;
+      dragState = null;
+
+      if (!hasDragged) {
+        // Foi clique — remove fantasma, mostra frase, abre modal
+        ghost.remove();
+        phrase.classList.remove('hidden-drag');
+        orbit.style.animationPlayState = 'running';
+        openPhraseModal(phrase);
+        return;
+      }
+
+      // Pega posição atual da frase original na tela (ainda orbitando pausada)
+      const rect = phrase.getBoundingClientRect();
+      const targetX = rect.left + rect.width / 2;
+      const targetY = rect.top + rect.height / 2;
+
+      // Anima o fantasma de volta até a frase
+      ghost.classList.add('returning');
+      ghost.style.left = targetX + 'px';
+      ghost.style.top = targetY + 'px';
+      ghost.style.opacity = '0';
+
+      ghost.addEventListener('transitionend', () => {
+        ghost.remove();
+        phrase.classList.remove('hidden-drag');
+        orbit.style.animationPlayState = 'running';
+      }, { once: true });
+    }
+
+    // ---- Modal da frase ----
+    const phraseOverlay = document.getElementById('phraseOverlay');
+    const modalQuote = document.getElementById('modalQuote');
+    const modalText = document.getElementById('modalText');
+
+    function openPhraseModal(phrase) {
+      const fraseTexto = phrase.textContent;
+      const modalConteudo = phrase.getAttribute('data-modal') || '';
+
+      modalQuote.textContent = `"${fraseTexto}"`;
+      modalText.textContent = modalConteudo;
+
+      phraseOverlay.style.display = 'flex';
+      requestAnimationFrame(() => {
+        phraseOverlay.classList.add('active');
+      });
+    }
+
+    function closePhraseModal() {
+      phraseOverlay.classList.remove('active');
+      setTimeout(() => { phraseOverlay.style.display = 'none'; }, 400);
+    }
+
+    document.getElementById('phraseModalClose').addEventListener('click', closePhraseModal);
+    phraseOverlay.addEventListener('click', (e) => {
+      if (e.target === phraseOverlay) closePhraseModal();
+    });
+
+    // Registra eventos em cada frase
+    document.querySelectorAll('.phrase').forEach(phrase => {
+      phrase.addEventListener('mousedown', (e) => startDrag(e, phrase));
+      phrase.addEventListener('touchstart', (e) => startDrag(e, phrase), { passive: false });
+
+      // Hover pausa (só se não estiver arrastando)
+      const orbit = phrase.closest('.phrase-orbit');
+      phrase.addEventListener('mouseenter', () => {
+        if (!dragState) orbit.style.animationPlayState = 'paused';
+      });
+      phrase.addEventListener('mouseleave', () => {
+        if (!dragState) orbit.style.animationPlayState = 'running';
+      });
+    });
+
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchmove', onDrag, { passive: false });
+    document.addEventListener('touchend', endDrag);
+  </script>
+</body>
+</html>
