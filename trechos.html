@@ -10,26 +10,51 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       min-height: 100vh;
-      background: linear-gradient(135deg, #0a1628 0%, #0d2137 30%, #0a2e1f 70%, #0d1f15 100%);
+      background: #0a1020;
       padding: 40px 20px;
       overflow-x: hidden;
     }
-    body::before {
-      content: '';
+
+    /* Container da malha — cobre a tela e esconde overflow */
+    .bg-mosaic-wrapper {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* Malha de capas inclinada */
+    .bg-mosaic {
+      position: absolute;
+      top: 50%; left: 50%;
+      display: grid;
+      grid-template-columns: repeat(50, 120px);
+      grid-auto-rows: 120px;
+      gap: 8px;
+      transform: translate(-50%, -50%) rotate(-25deg);
+      animation: mosaicDrift 600s linear infinite;
+      opacity: 0.12;
+    }
+    .bg-mosaic img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    @keyframes mosaicDrift {
+      0% { transform: translate(-50%, -50%) rotate(-25deg) translate(0, 0); }
+      100% { transform: translate(-50%, -50%) rotate(-25deg) translate(1920px, -1920px); }
+    }
+    /* Overlay escuro por cima da malha */
+    .bg-overlay {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background:
-        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.4), transparent),
-        radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.3), transparent),
-        radial-gradient(1.5px 1.5px at 50% 10%, rgba(255,255,255,0.5), transparent),
-        radial-gradient(1px 1px at 70% 40%, rgba(255,255,255,0.3), transparent),
-        radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.4), transparent);
+      background: radial-gradient(ellipse at center, rgba(10, 16, 32, 0.55) 0%, rgba(10, 16, 32, 0.8) 70%);
       pointer-events: none;
       z-index: 0;
-      animation: twinkle 4s ease-in-out infinite alternate;
     }
-    @keyframes twinkle { 0% { opacity: 0.6; } 100% { opacity: 1; } }
 
     .container { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
 
@@ -79,14 +104,7 @@
       position: relative;
     }
 
-    .trecho-lyric::before {
-      content: '♪';
-      position: absolute;
-      top: 15px;
-      left: 20px;
-      font-size: 1.2rem;
-      color: rgba(78, 205, 196, 0.3);
-    }
+    /* removido — substituído pelas aspas animadas */
 
     .trecho-lyric p {
       font-family: 'Lora', serif;
@@ -105,11 +123,6 @@
       font-size: 0.85rem;
       margin-top: 15px;
       font-style: normal;
-    }
-
-    .trecho-message {
-      margin-top: 20px;
-      padding: 0 15px;
     }
 
     .trecho-message p {
@@ -172,16 +185,198 @@
     .glow-right { bottom: 20%; right: -100px; background: rgba(30, 130, 80, 0.2); animation: float 8s ease-in-out infinite reverse; }
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
 
+
+    /* 4. Aspas animadas */
+    .trecho-lyric::before {
+      content: '"';
+      position: absolute;
+      top: -10px;
+      left: 15px;
+      font-size: 4rem;
+      font-family: 'Dancing Script', cursive;
+      color: rgba(78, 205, 196, 0);
+      text-shadow: none;
+      transition: color 0.6s ease, text-shadow 0.6s ease;
+      line-height: 1;
+    }
+    .trecho-lyric::after {
+      content: '"';
+      position: absolute;
+      bottom: -25px;
+      right: 15px;
+      font-size: 4rem;
+      font-family: 'Dancing Script', cursive;
+      color: rgba(78, 205, 196, 0);
+      text-shadow: none;
+      transition: color 0.6s ease, text-shadow 0.6s ease;
+      line-height: 1;
+    }
+    .trecho-block.visible .trecho-lyric::before,
+    .trecho-block.visible .trecho-lyric::after {
+      color: rgba(78, 205, 196, 0.25);
+      text-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+    }
+
+    /* 5. Parallax — mensagem com velocidade diferente */
+    .trecho-message {
+      margin-top: 20px;
+      padding: 0 15px;
+      transition: opacity 0.8s ease, transform 1s ease;
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    .trecho-block.visible .trecho-message {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.3s;
+    }
+
+    /* 7. Onda sonora dentro do player */
+    .trecho-player {
+      position: relative;
+      overflow: hidden;
+    }
+    .player-wave {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      padding: 0 10px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.25;
+    }
+    .player-wave-bar {
+      flex: 1;
+      background: linear-gradient(to top, rgba(78, 205, 196, 0.7), rgba(78, 205, 196, 0.1));
+      border-radius: 2px 2px 0 0;
+      height: 15%;
+      transition: height 0.3s ease;
+    }
+    .trecho-player.playing .player-wave-bar {
+      animation: waveBar ease-in-out infinite;
+    }
+    @keyframes waveBar {
+      0%, 100% { height: var(--wave-min); }
+      50% { height: var(--wave-max); }
+    }
+    .trecho-player > *:not(.player-wave) {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 8. Mini vinil girando */
+    .mini-vinyl {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #1a1a2e 30%, #333 32%, #222 60%, #333 62%, #1a1a2e 90%);
+      border: 1px solid rgba(78, 205, 196, 0.3);
+      vertical-align: middle;
+      margin-right: 6px;
+      animation: vinylSpin 3s linear infinite;
+      position: relative;
+    }
+    .mini-vinyl::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #4ecdc4;
+    }
+    @keyframes vinylSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Player com capa */
+    .trecho-player {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-top: 18px;
+      padding: 12px 15px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(78, 205, 196, 0.1);
+      border-radius: 14px;
+    }
+    .trecho-cover {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    }
+    .trecho-player-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .trecho-player-info .player-song {
+      font-family: 'Lora', serif;
+      color: #c8dbe6;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .trecho-player-info .player-artist {
+      font-family: 'Lora', serif;
+      color: rgba(78, 205, 196, 0.5);
+      font-size: 0.78rem;
+      margin-top: 2px;
+    }
+    .trecho-play-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid rgba(78, 205, 196, 0.3);
+      background: rgba(78, 205, 196, 0.1);
+      color: #4ecdc4;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+    .trecho-play-btn:hover {
+      background: rgba(78, 205, 196, 0.2);
+      transform: scale(1.1);
+    }
+    .trecho-play-btn.playing {
+      background: rgba(78, 205, 196, 0.25);
+      box-shadow: 0 0 15px rgba(78, 205, 196, 0.3);
+    }
+
     @media (max-width: 480px) {
       .page-title { font-size: 2rem; }
       .trecho-lyric { padding: 25px 20px; }
       .trecho-lyric p { font-size: 0.95rem; }
+      .trecho-lyric::before, .trecho-lyric::after { font-size: 3rem; }
+      .equalizer { height: 50px; }
     }
   </style>
 </head>
 <body>
+  <!-- Malha de capas de fundo -->
+  <div class="bg-mosaic-wrapper">
+    <div class="bg-mosaic" id="bgMosaic"></div>
+  </div>
+  <div class="bg-overlay"></div>
+
   <div class="glow-left"></div>
   <div class="glow-right"></div>
+
 
   <div class="container">
     <h1 class="page-title">Trechos & Mensagens 🎶</h1>
@@ -191,14 +386,21 @@
     <div class="trecho-block">
       <div class="trecho-lyric">
         <p>
-          Trecho da música aqui<br>
-          Segunda linha do trecho<br>
-          Terceira linha do trecho
+          Conseguiu arrancar palavras da minha boca,<br>
+          apaixonates falas
         </p>
-        <span class="song-name">— Nome da Música, Artista</span>
+        <svg class="sound-wave" viewBox="0 0 200 40"><line x1="10" y1="20" x2="10" y2="10" style="animation: eqPulse 1.2s ease-in-out infinite; --eq-min: 5px; --eq-max: 15px;"/><line x1="20" y1="20" x2="20" y2="5" style="animation: eqPulse 0.9s ease-in-out infinite 0.1s; --eq-min: 3px; --eq-max: 18px;"/><line x1="30" y1="20" x2="30" y2="8" style="animation: eqPulse 1.4s ease-in-out infinite 0.2s; --eq-min: 4px; --eq-max: 14px;"/><line x1="40" y1="20" x2="40" y2="3" style="animation: eqPulse 1.1s ease-in-out infinite 0.3s; --eq-min: 6px; --eq-max: 20px;"/><line x1="50" y1="20" x2="50" y2="7" style="animation: eqPulse 1.3s ease-in-out infinite; --eq-min: 5px; --eq-max: 16px;"/><line x1="60" y1="20" x2="60" y2="4" style="animation: eqPulse 0.8s ease-in-out infinite 0.15s; --eq-min: 3px; --eq-max: 19px;"/><line x1="70" y1="20" x2="70" y2="9" style="animation: eqPulse 1.5s ease-in-out infinite 0.25s; --eq-min: 5px; --eq-max: 15px;"/><line x1="80" y1="20" x2="80" y2="6" style="animation: eqPulse 1.0s ease-in-out infinite 0.1s; --eq-min: 4px; --eq-max: 17px;"/><line x1="90" y1="20" x2="90" y2="3" style="animation: eqPulse 1.2s ease-in-out infinite 0.35s; --eq-min: 3px; --eq-max: 20px;"/><line x1="100" y1="20" x2="100" y2="8" style="animation: eqPulse 0.9s ease-in-out infinite 0.2s; --eq-min: 5px; --eq-max: 16px;"/><line x1="110" y1="20" x2="110" y2="5" style="animation: eqPulse 1.3s ease-in-out infinite 0.15s; --eq-min: 4px; --eq-max: 18px;"/><line x1="120" y1="20" x2="120" y2="10" style="animation: eqPulse 1.1s ease-in-out infinite 0.3s; --eq-min: 6px; --eq-max: 14px;"/><line x1="130" y1="20" x2="130" y2="4" style="animation: eqPulse 0.8s ease-in-out infinite 0.1s; --eq-min: 3px; --eq-max: 19px;"/><line x1="140" y1="20" x2="140" y2="7" style="animation: eqPulse 1.4s ease-in-out infinite 0.25s; --eq-min: 5px; --eq-max: 17px;"/><line x1="150" y1="20" x2="150" y2="3" style="animation: eqPulse 1.0s ease-in-out infinite; --eq-min: 4px; --eq-max: 20px;"/><line x1="160" y1="20" x2="160" y2="9" style="animation: eqPulse 1.2s ease-in-out infinite 0.2s; --eq-min: 5px; --eq-max: 15px;"/><line x1="170" y1="20" x2="170" y2="5" style="animation: eqPulse 0.9s ease-in-out infinite 0.35s; --eq-min: 3px; --eq-max: 18px;"/><line x1="180" y1="20" x2="180" y2="8" style="animation: eqPulse 1.3s ease-in-out infinite 0.1s; --eq-min: 6px; --eq-max: 16px;"/><line x1="190" y1="20" x2="190" y2="4" style="animation: eqPulse 1.1s ease-in-out infinite 0.3s; --eq-min: 4px; --eq-max: 19px;"/></svg>
+        <div class="trecho-player" data-src="trechos/musicas/sem-graca.mpeg" data-start="99" data-end="119">
+          <img class="trecho-cover" src="trechos/fotos/sem-graca.jpg" alt="Sem Graça">
+          <div class="trecho-player-info">
+            <div class="player-song">Sem Graça</div>
+            <div class="player-artist">Haikaiss</div>
+          </div>
+          <button class="trecho-play-btn" aria-label="Tocar trecho">▶</button>
+        </div>
       </div>
       <div class="trecho-message">
-        <p>Mensagem sua aqui sobre o que esse trecho significa pra vocês dois.</p>
+        <p>Esse trecho me faz pensar: eu consegui fazer você me mostrar o seu lado que ninguém conheceu e ninguém conhece. Conseguir ouvir um te amo de uma menina tão especial que nem você não é uma tarefa fácil.</p>
         <span class="author">— eu ♥</span>
       </div>
     </div>
@@ -213,14 +415,22 @@
     <div class="trecho-block">
       <div class="trecho-lyric">
         <p>
-          Trecho da música aqui<br>
-          Segunda linha do trecho<br>
-          Terceira linha do trecho
+          Mas quando penso em você,<br>
+          a mão junta com a caneta<br>
+          e a letra se escreve sozinha
         </p>
-        <span class="song-name">— Nome da Música, Artista</span>
+        <svg class="sound-wave" viewBox="0 0 200 40"><line x1="10" y1="20" x2="10" y2="7" style="animation: eqPulse 1.1s ease-in-out infinite; --eq-min: 4px; --eq-max: 17px;"/><line x1="20" y1="20" x2="20" y2="4" style="animation: eqPulse 1.3s ease-in-out infinite 0.2s; --eq-min: 3px; --eq-max: 19px;"/><line x1="30" y1="20" x2="30" y2="9" style="animation: eqPulse 0.9s ease-in-out infinite 0.1s; --eq-min: 5px; --eq-max: 15px;"/><line x1="40" y1="20" x2="40" y2="5" style="animation: eqPulse 1.4s ease-in-out infinite 0.3s; --eq-min: 4px; --eq-max: 18px;"/><line x1="50" y1="20" x2="50" y2="3" style="animation: eqPulse 1.0s ease-in-out infinite 0.15s; --eq-min: 3px; --eq-max: 20px;"/><line x1="60" y1="20" x2="60" y2="8" style="animation: eqPulse 1.2s ease-in-out infinite 0.25s; --eq-min: 5px; --eq-max: 16px;"/><line x1="70" y1="20" x2="70" y2="6" style="animation: eqPulse 0.8s ease-in-out infinite; --eq-min: 4px; --eq-max: 17px;"/><line x1="80" y1="20" x2="80" y2="4" style="animation: eqPulse 1.3s ease-in-out infinite 0.35s; --eq-min: 3px; --eq-max: 19px;"/><line x1="90" y1="20" x2="90" y2="10" style="animation: eqPulse 1.1s ease-in-out infinite 0.1s; --eq-min: 6px; --eq-max: 14px;"/><line x1="100" y1="20" x2="100" y2="5" style="animation: eqPulse 0.9s ease-in-out infinite 0.2s; --eq-min: 4px; --eq-max: 18px;"/><line x1="110" y1="20" x2="110" y2="7" style="animation: eqPulse 1.4s ease-in-out infinite 0.15s; --eq-min: 5px; --eq-max: 16px;"/><line x1="120" y1="20" x2="120" y2="3" style="animation: eqPulse 1.0s ease-in-out infinite 0.3s; --eq-min: 3px; --eq-max: 20px;"/><line x1="130" y1="20" x2="130" y2="8" style="animation: eqPulse 1.2s ease-in-out infinite; --eq-min: 5px; --eq-max: 15px;"/><line x1="140" y1="20" x2="140" y2="5" style="animation: eqPulse 0.8s ease-in-out infinite 0.25s; --eq-min: 4px; --eq-max: 18px;"/><line x1="150" y1="20" x2="150" y2="9" style="animation: eqPulse 1.3s ease-in-out infinite 0.1s; --eq-min: 6px; --eq-max: 16px;"/><line x1="160" y1="20" x2="160" y2="4" style="animation: eqPulse 1.1s ease-in-out infinite 0.35s; --eq-min: 3px; --eq-max: 19px;"/><line x1="170" y1="20" x2="170" y2="7" style="animation: eqPulse 0.9s ease-in-out infinite 0.2s; --eq-min: 5px; --eq-max: 17px;"/><line x1="180" y1="20" x2="180" y2="3" style="animation: eqPulse 1.4s ease-in-out infinite; --eq-min: 4px; --eq-max: 20px;"/><line x1="190" y1="20" x2="190" y2="8" style="animation: eqPulse 1.0s ease-in-out infinite 0.15s; --eq-min: 5px; --eq-max: 15px;"/></svg>
+        <div class="trecho-player" data-src="trechos/musicas/rubi.mpeg" data-start="115" data-end="128">
+          <img class="trecho-cover" src="trechos/fotos/rubi.jpg" alt="Rubi">
+          <div class="trecho-player-info">
+            <div class="player-song">Rubi</div>
+            <div class="player-artist">Andrade</div>
+          </div>
+          <button class="trecho-play-btn" aria-label="Tocar trecho">▶</button>
+        </div>
       </div>
       <div class="trecho-message">
-        <p>Mensagem sua aqui sobre o que esse trecho significa pra vocês dois.</p>
+        <p>Acho que você já percebeu que eu sou assim com você, não preciso de inspiração quando a inspiração que eu tenho é mais perfeita que qualquer outra arte que eu possa buscar.</p>
         <span class="author">— eu ♥</span>
       </div>
     </div>
@@ -235,14 +445,21 @@
     <div class="trecho-block">
       <div class="trecho-lyric">
         <p>
-          Trecho da música aqui<br>
-          Segunda linha do trecho<br>
-          Terceira linha do trecho
+          Uma parceira no crime, sim!<br>
+          É o que eu sempre quis
         </p>
-        <span class="song-name">— Nome da Música, Artista</span>
+        <svg class="sound-wave" viewBox="0 0 200 40"><line x1="10" y1="20" x2="10" y2="8" style="animation: eqPulse 1.0s ease-in-out infinite; --eq-min: 5px; --eq-max: 16px;"/><line x1="20" y1="20" x2="20" y2="4" style="animation: eqPulse 1.2s ease-in-out infinite 0.15s; --eq-min: 3px; --eq-max: 19px;"/><line x1="30" y1="20" x2="30" y2="7" style="animation: eqPulse 0.9s ease-in-out infinite 0.25s; --eq-min: 4px; --eq-max: 17px;"/><line x1="40" y1="20" x2="40" y2="3" style="animation: eqPulse 1.3s ease-in-out infinite 0.1s; --eq-min: 3px; --eq-max: 20px;"/><line x1="50" y1="20" x2="50" y2="9" style="animation: eqPulse 1.1s ease-in-out infinite 0.3s; --eq-min: 5px; --eq-max: 15px;"/><line x1="60" y1="20" x2="60" y2="5" style="animation: eqPulse 0.8s ease-in-out infinite; --eq-min: 4px; --eq-max: 18px;"/><line x1="70" y1="20" x2="70" y2="7" style="animation: eqPulse 1.4s ease-in-out infinite 0.2s; --eq-min: 5px; --eq-max: 16px;"/><line x1="80" y1="20" x2="80" y2="4" style="animation: eqPulse 1.0s ease-in-out infinite 0.35s; --eq-min: 3px; --eq-max: 19px;"/><line x1="90" y1="20" x2="90" y2="10" style="animation: eqPulse 1.2s ease-in-out infinite 0.1s; --eq-min: 6px; --eq-max: 14px;"/><line x1="100" y1="20" x2="100" y2="6" style="animation: eqPulse 0.9s ease-in-out infinite 0.25s; --eq-min: 4px; --eq-max: 17px;"/><line x1="110" y1="20" x2="110" y2="3" style="animation: eqPulse 1.3s ease-in-out infinite; --eq-min: 3px; --eq-max: 20px;"/><line x1="120" y1="20" x2="120" y2="8" style="animation: eqPulse 1.1s ease-in-out infinite 0.15s; --eq-min: 5px; --eq-max: 15px;"/><line x1="130" y1="20" x2="130" y2="5" style="animation: eqPulse 0.8s ease-in-out infinite 0.3s; --eq-min: 4px; --eq-max: 18px;"/><line x1="140" y1="20" x2="140" y2="9" style="animation: eqPulse 1.4s ease-in-out infinite 0.1s; --eq-min: 6px; --eq-max: 16px;"/><line x1="150" y1="20" x2="150" y2="4" style="animation: eqPulse 1.0s ease-in-out infinite 0.2s; --eq-min: 3px; --eq-max: 19px;"/><line x1="160" y1="20" x2="160" y2="7" style="animation: eqPulse 1.2s ease-in-out infinite 0.35s; --eq-min: 5px; --eq-max: 17px;"/><line x1="170" y1="20" x2="170" y2="3" style="animation: eqPulse 0.9s ease-in-out infinite; --eq-min: 3px; --eq-max: 20px;"/><line x1="180" y1="20" x2="180" y2="8" style="animation: eqPulse 1.3s ease-in-out infinite 0.25s; --eq-min: 5px; --eq-max: 15px;"/><line x1="190" y1="20" x2="190" y2="5" style="animation: eqPulse 1.1s ease-in-out infinite 0.15s; --eq-min: 4px; --eq-max: 18px;"/></svg>
+        <div class="trecho-player" data-src="trechos/musicas/doce-veneno.mpeg" data-start="162" data-end="176">
+          <img class="trecho-cover" src="trechos/fotos/doce-veneno.jpg" alt="Doce Veneno">
+          <div class="trecho-player-info">
+            <div class="player-song">Doce Veneno</div>
+            <div class="player-artist">Costa Gold</div>
+          </div>
+          <button class="trecho-play-btn" aria-label="Tocar trecho">▶</button>
+        </div>
       </div>
       <div class="trecho-message">
-        <p>Mensagem sua aqui sobre o que esse trecho significa pra vocês dois.</p>
+        <p>Sim! Uma parceira, uma pessoa que está do meu lado e entende todos os traços da minha personalidade e vontade, deixar de notar, isso sim seria um crime.</p>
         <span class="author">— eu ♥</span>
       </div>
     </div>
@@ -257,14 +474,21 @@
     <div class="trecho-block">
       <div class="trecho-lyric">
         <p>
-          Trecho da música aqui<br>
-          Segunda linha do trecho<br>
-          Terceira linha do trecho
+          De dormir juntinho, acordar abraçado<br>
+          Agradecer ao te ver linda, ali bem do meu lado
         </p>
-        <span class="song-name">— Nome da Música, Artista</span>
+        <svg class="sound-wave" viewBox="0 0 200 40"><line x1="10" y1="20" x2="10" y2="6" style="animation: eqPulse 1.3s ease-in-out infinite; --eq-min: 4px; --eq-max: 18px;"/><line x1="20" y1="20" x2="20" y2="9" style="animation: eqPulse 0.9s ease-in-out infinite 0.2s; --eq-min: 5px; --eq-max: 15px;"/><line x1="30" y1="20" x2="30" y2="3" style="animation: eqPulse 1.1s ease-in-out infinite 0.1s; --eq-min: 3px; --eq-max: 20px;"/><line x1="40" y1="20" x2="40" y2="7" style="animation: eqPulse 1.4s ease-in-out infinite 0.3s; --eq-min: 5px; --eq-max: 16px;"/><line x1="50" y1="20" x2="50" y2="4" style="animation: eqPulse 1.0s ease-in-out infinite 0.15s; --eq-min: 3px; --eq-max: 19px;"/><line x1="60" y1="20" x2="60" y2="10" style="animation: eqPulse 1.2s ease-in-out infinite 0.25s; --eq-min: 6px; --eq-max: 14px;"/><line x1="70" y1="20" x2="70" y2="5" style="animation: eqPulse 0.8s ease-in-out infinite; --eq-min: 4px; --eq-max: 17px;"/><line x1="80" y1="20" x2="80" y2="8" style="animation: eqPulse 1.3s ease-in-out infinite 0.35s; --eq-min: 5px; --eq-max: 16px;"/><line x1="90" y1="20" x2="90" y2="3" style="animation: eqPulse 1.1s ease-in-out infinite 0.1s; --eq-min: 3px; --eq-max: 20px;"/><line x1="100" y1="20" x2="100" y2="7" style="animation: eqPulse 0.9s ease-in-out infinite 0.2s; --eq-min: 4px; --eq-max: 18px;"/><line x1="110" y1="20" x2="110" y2="5" style="animation: eqPulse 1.4s ease-in-out infinite; --eq-min: 3px; --eq-max: 17px;"/><line x1="120" y1="20" x2="120" y2="9" style="animation: eqPulse 1.0s ease-in-out infinite 0.3s; --eq-min: 6px; --eq-max: 15px;"/><line x1="130" y1="20" x2="130" y2="4" style="animation: eqPulse 1.2s ease-in-out infinite 0.15s; --eq-min: 4px; --eq-max: 19px;"/><line x1="140" y1="20" x2="140" y2="8" style="animation: eqPulse 0.8s ease-in-out infinite 0.25s; --eq-min: 5px; --eq-max: 16px;"/><line x1="150" y1="20" x2="150" y2="3" style="animation: eqPulse 1.3s ease-in-out infinite 0.1s; --eq-min: 3px; --eq-max: 20px;"/><line x1="160" y1="20" x2="160" y2="6" style="animation: eqPulse 1.1s ease-in-out infinite 0.35s; --eq-min: 4px; --eq-max: 18px;"/><line x1="170" y1="20" x2="170" y2="10" style="animation: eqPulse 0.9s ease-in-out infinite; --eq-min: 6px; --eq-max: 14px;"/><line x1="180" y1="20" x2="180" y2="5" style="animation: eqPulse 1.4s ease-in-out infinite 0.2s; --eq-min: 4px; --eq-max: 17px;"/><line x1="190" y1="20" x2="190" y2="7" style="animation: eqPulse 1.0s ease-in-out infinite 0.3s; --eq-min: 5px; --eq-max: 19px;"/></svg>
+        <div class="trecho-player" data-src="trechos/musicas/como-eu-te-quero.mpeg" data-start="40" data-end="53">
+          <img class="trecho-cover" src="trechos/fotos/Black-alien.jpg" alt="Como Eu Te Quero">
+          <div class="trecho-player-info">
+            <div class="player-song">Como Eu Te Quero</div>
+            <div class="player-artist">Black Alien</div>
+          </div>
+          <button class="trecho-play-btn" aria-label="Tocar trecho">▶</button>
+        </div>
       </div>
       <div class="trecho-message">
-        <p>Mensagem sua aqui sobre o que esse trecho significa pra vocês dois.</p>
+        <p>Sabe o que me impressiona? Mesmo que a gente não se conheça há muito tempo, eu me sinto como se te conhecesse durante minha vida inteira. Quando eu cochilo nos seus braços, eu me sinto em casa e quando acordo, olho pro seu rosto e imagino "Como que eu cheguei aqui?". Não sei, única certeza que eu tenho é que essa é a escolha certa.</p>
         <span class="author">— eu ♥</span>
       </div>
     </div>
@@ -279,14 +503,21 @@
     <div class="trecho-block">
       <div class="trecho-lyric">
         <p>
-          Trecho da música aqui<br>
-          Segunda linha do trecho<br>
-          Terceira linha do trecho
+          Há uma luz que vem pra me dizer:<br>
+          "Tudo vai dar certo"
         </p>
-        <span class="song-name">— Nome da Música, Artista</span>
+        <svg class="sound-wave" viewBox="0 0 200 40"><line x1="10" y1="20" x2="10" y2="5" style="animation: eqPulse 1.2s ease-in-out infinite; --eq-min: 3px; --eq-max: 19px;"/><line x1="20" y1="20" x2="20" y2="8" style="animation: eqPulse 1.0s ease-in-out infinite 0.15s; --eq-min: 5px; --eq-max: 16px;"/><line x1="30" y1="20" x2="30" y2="4" style="animation: eqPulse 1.3s ease-in-out infinite 0.25s; --eq-min: 4px; --eq-max: 18px;"/><line x1="40" y1="20" x2="40" y2="9" style="animation: eqPulse 0.9s ease-in-out infinite 0.1s; --eq-min: 6px; --eq-max: 15px;"/><line x1="50" y1="20" x2="50" y2="3" style="animation: eqPulse 1.4s ease-in-out infinite 0.3s; --eq-min: 3px; --eq-max: 20px;"/><line x1="60" y1="20" x2="60" y2="7" style="animation: eqPulse 1.1s ease-in-out infinite; --eq-min: 5px; --eq-max: 17px;"/><line x1="70" y1="20" x2="70" y2="4" style="animation: eqPulse 0.8s ease-in-out infinite 0.2s; --eq-min: 3px; --eq-max: 19px;"/><line x1="80" y1="20" x2="80" y2="10" style="animation: eqPulse 1.2s ease-in-out infinite 0.35s; --eq-min: 6px; --eq-max: 14px;"/><line x1="90" y1="20" x2="90" y2="6" style="animation: eqPulse 1.0s ease-in-out infinite 0.1s; --eq-min: 4px; --eq-max: 18px;"/><line x1="100" y1="20" x2="100" y2="3" style="animation: eqPulse 1.3s ease-in-out infinite 0.25s; --eq-min: 3px; --eq-max: 20px;"/><line x1="110" y1="20" x2="110" y2="8" style="animation: eqPulse 0.9s ease-in-out infinite 0.15s; --eq-min: 5px; --eq-max: 16px;"/><line x1="120" y1="20" x2="120" y2="5" style="animation: eqPulse 1.4s ease-in-out infinite; --eq-min: 4px; --eq-max: 17px;"/><line x1="130" y1="20" x2="130" y2="9" style="animation: eqPulse 1.1s ease-in-out infinite 0.3s; --eq-min: 6px; --eq-max: 15px;"/><line x1="140" y1="20" x2="140" y2="4" style="animation: eqPulse 0.8s ease-in-out infinite 0.1s; --eq-min: 3px; --eq-max: 19px;"/><line x1="150" y1="20" x2="150" y2="7" style="animation: eqPulse 1.2s ease-in-out infinite 0.2s; --eq-min: 5px; --eq-max: 18px;"/><line x1="160" y1="20" x2="160" y2="3" style="animation: eqPulse 1.0s ease-in-out infinite 0.35s; --eq-min: 3px; --eq-max: 20px;"/><line x1="170" y1="20" x2="170" y2="8" style="animation: eqPulse 1.3s ease-in-out infinite; --eq-min: 5px; --eq-max: 16px;"/><line x1="180" y1="20" x2="180" y2="5" style="animation: eqPulse 0.9s ease-in-out infinite 0.25s; --eq-min: 4px; --eq-max: 17px;"/><line x1="190" y1="20" x2="190" y2="10" style="animation: eqPulse 1.1s ease-in-out infinite 0.15s; --eq-min: 6px; --eq-max: 14px;"/></svg>
+        <div class="trecho-player" data-src="trechos/musicas/tudo-vai-dar-certo.mpeg" data-start="34" data-end="54">
+          <img class="trecho-cover" src="trechos/fotos/Natiruts-Tudo-Vai-Dar-Certo.jpg" alt="Tudo Vai Dar Certo">
+          <div class="trecho-player-info">
+            <div class="player-song">Tudo Vai Dar Certo</div>
+            <div class="player-artist">Natiruts</div>
+          </div>
+          <button class="trecho-play-btn" aria-label="Tocar trecho">▶</button>
+        </div>
       </div>
       <div class="trecho-message">
-        <p>Mensagem sua aqui sobre o que esse trecho significa pra vocês dois.</p>
+        <p>Quero que saiba que essa "luz" na minha vida é você. Não importa o quão perdido eu esteja, você sempre me traz de volta pro caminho. Quero que saiba que te vejo como inspiração em todos os sentidos.</p>
         <span class="author">— eu ♥</span>
       </div>
     </div>
@@ -301,58 +532,22 @@
     <div class="trecho-block">
       <div class="trecho-lyric">
         <p>
-          Trecho da música aqui<br>
-          Segunda linha do trecho<br>
-          Terceira linha do trecho
+          Hoje estou feliz porque sonhei com você<br>
+          E amanhã posso chorar<br>
+          Por não poder te ver
         </p>
-        <span class="song-name">— Nome da Música, Artista</span>
+        <svg class="sound-wave" viewBox="0 0 200 40"><line x1="10" y1="20" x2="10" y2="7" style="animation: eqPulse 1.1s ease-in-out infinite; --eq-min: 4px; --eq-max: 17px;"/><line x1="20" y1="20" x2="20" y2="3" style="animation: eqPulse 1.3s ease-in-out infinite 0.2s; --eq-min: 3px; --eq-max: 20px;"/><line x1="30" y1="20" x2="30" y2="9" style="animation: eqPulse 0.8s ease-in-out infinite 0.1s; --eq-min: 6px; --eq-max: 15px;"/><line x1="40" y1="20" x2="40" y2="5" style="animation: eqPulse 1.4s ease-in-out infinite 0.3s; --eq-min: 4px; --eq-max: 18px;"/><line x1="50" y1="20" x2="50" y2="8" style="animation: eqPulse 1.0s ease-in-out infinite 0.15s; --eq-min: 5px; --eq-max: 16px;"/><line x1="60" y1="20" x2="60" y2="4" style="animation: eqPulse 1.2s ease-in-out infinite 0.25s; --eq-min: 3px; --eq-max: 19px;"/><line x1="70" y1="20" x2="70" y2="10" style="animation: eqPulse 0.9s ease-in-out infinite; --eq-min: 6px; --eq-max: 14px;"/><line x1="80" y1="20" x2="80" y2="5" style="animation: eqPulse 1.3s ease-in-out infinite 0.35s; --eq-min: 4px; --eq-max: 18px;"/><line x1="90" y1="20" x2="90" y2="7" style="animation: eqPulse 1.1s ease-in-out infinite 0.1s; --eq-min: 5px; --eq-max: 17px;"/><line x1="100" y1="20" x2="100" y2="3" style="animation: eqPulse 0.8s ease-in-out infinite 0.2s; --eq-min: 3px; --eq-max: 20px;"/><line x1="110" y1="20" x2="110" y2="9" style="animation: eqPulse 1.4s ease-in-out infinite 0.15s; --eq-min: 6px; --eq-max: 15px;"/><line x1="120" y1="20" x2="120" y2="4" style="animation: eqPulse 1.0s ease-in-out infinite 0.3s; --eq-min: 3px; --eq-max: 19px;"/><line x1="130" y1="20" x2="130" y2="8" style="animation: eqPulse 1.2s ease-in-out infinite; --eq-min: 5px; --eq-max: 16px;"/><line x1="140" y1="20" x2="140" y2="6" style="animation: eqPulse 0.9s ease-in-out infinite 0.25s; --eq-min: 4px; --eq-max: 18px;"/><line x1="150" y1="20" x2="150" y2="3" style="animation: eqPulse 1.3s ease-in-out infinite 0.1s; --eq-min: 3px; --eq-max: 20px;"/><line x1="160" y1="20" x2="160" y2="10" style="animation: eqPulse 1.1s ease-in-out infinite 0.35s; --eq-min: 6px; --eq-max: 14px;"/><line x1="170" y1="20" x2="170" y2="5" style="animation: eqPulse 0.8s ease-in-out infinite 0.2s; --eq-min: 4px; --eq-max: 17px;"/><line x1="180" y1="20" x2="180" y2="7" style="animation: eqPulse 1.4s ease-in-out infinite; --eq-min: 5px; --eq-max: 19px;"/><line x1="190" y1="20" x2="190" y2="4" style="animation: eqPulse 1.0s ease-in-out infinite 0.15s; --eq-min: 3px; --eq-max: 18px;"/></svg>
+        <div class="trecho-player" data-src="trechos/musicas/dias-de-luta.mpeg" data-start="12" data-end="26">
+          <img class="trecho-cover" src="trechos/fotos/dias-de-luta-dias-de-glória.avif" alt="Dias De Luta, Dias De Glória">
+          <div class="trecho-player-info">
+            <div class="player-song">Dias De Luta, Dias De Glória</div>
+            <div class="player-artist">Charlie Brown Jr.</div>
+          </div>
+          <button class="trecho-play-btn" aria-label="Tocar trecho">▶</button>
+        </div>
       </div>
       <div class="trecho-message">
-        <p>Mensagem sua aqui sobre o que esse trecho significa pra vocês dois.</p>
-        <span class="author">— eu ♥</span>
-      </div>
-    </div>
-
-    <div class="divider">
-      <span class="line"></span>
-      <span class="icon">♪</span>
-      <span class="line"></span>
-    </div>
-
-    <!-- Trecho 7 -->
-    <div class="trecho-block">
-      <div class="trecho-lyric">
-        <p>
-          Trecho da música aqui<br>
-          Segunda linha do trecho<br>
-          Terceira linha do trecho
-        </p>
-        <span class="song-name">— Nome da Música, Artista</span>
-      </div>
-      <div class="trecho-message">
-        <p>Mensagem sua aqui sobre o que esse trecho significa pra vocês dois.</p>
-        <span class="author">— eu ♥</span>
-      </div>
-    </div>
-
-    <div class="divider">
-      <span class="line"></span>
-      <span class="icon">♪</span>
-      <span class="line"></span>
-    </div>
-
-    <!-- Trecho 8 -->
-    <div class="trecho-block">
-      <div class="trecho-lyric">
-        <p>
-          Trecho da música aqui<br>
-          Segunda linha do trecho<br>
-          Terceira linha do trecho
-        </p>
-        <span class="song-name">— Nome da Música, Artista</span>
-      </div>
-      <div class="trecho-message">
-        <p>Mensagem sua aqui sobre o que esse trecho significa pra vocês dois.</p>
+        <p>Alguns podem dizer que isso é ruim, mas não. Eu gosto do fato de que eu me importo tanto com você, de que eu faço questão de estar com você, que o simples fato de sonhar com você já me deixa feliz.</p>
         <span class="author">— eu ♥</span>
       </div>
     </div>
@@ -361,6 +556,27 @@
   </div>
 
   <script>
+    // Gerar malha de capas de fundo
+    (function() {
+      const mosaic = document.getElementById('bgMosaic');
+      const images = [
+        'download (1).png','download (10).jpg','download (11).jpg','download (12).jpg',
+        'download (13).jpg','download (14).jpg','download (15).jpg','download (16).jpg',
+        'download (17).jpg','download (18).jpg','download (19).jpg','download (20).jpg',
+        'download (21).jpg','download (4).jpg','download (5).jpg','download (6).jpg',
+        'download (7).jpg','download (8).jpg','download (9).jpg','download.png',
+        'images (4).jpg','images (5).jpg','images (6).jpg'
+      ];
+      const totalNeeded = 2500;
+      for (let i = 0; i < totalNeeded; i++) {
+        const img = document.createElement('img');
+        img.src = 'trechos/plano-de-fundo/' + images[i % images.length];
+        img.alt = '';
+        img.loading = 'lazy';
+        mosaic.appendChild(img);
+      }
+    })();
+
     // Animação ao scroll — os blocos aparecem conforme o usuário desce
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -373,6 +589,149 @@
     document.querySelectorAll('.trecho-block, .divider').forEach(el => {
       observer.observe(el);
     });
+
+    // Remove SVGs antigos e gera ondas animadas dentro do player
+    document.querySelectorAll('.sound-wave').forEach(svg => svg.remove());
+
+    document.querySelectorAll('.trecho-player').forEach(player => {
+      const wave = document.createElement('div');
+      wave.className = 'player-wave';
+      for (let i = 0; i < 30; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'player-wave-bar';
+        const min = Math.random() * 10 + 5;
+        const max = Math.random() * 70 + 30;
+        bar.style.setProperty('--wave-min', min + '%');
+        bar.style.setProperty('--wave-max', max + '%');
+        bar.style.animationDuration = (Math.random() * 1.2 + 0.5) + 's';
+        bar.style.animationDelay = (Math.random() * 1) + 's';
+        bar.style.height = min + '%';
+        wave.appendChild(bar);
+      }
+      player.insertBefore(wave, player.firstChild);
+    });
+
+    // Player de trechos com fade in/out e loop
+    let currentAudio = null;
+    let currentBtn = null;
+    let currentPlayer = null;
+    let fadeInterval = null;
+
+    function stopCurrent() {
+      if (!currentAudio) return;
+      clearInterval(fadeInterval);
+      fadeInterval = setInterval(() => {
+        if (currentAudio.volume > 0.05) {
+          currentAudio.volume = Math.max(0, currentAudio.volume - 0.05);
+        } else {
+          clearInterval(fadeInterval);
+          currentAudio.pause();
+          currentAudio = null;
+          if (currentBtn) {
+            currentBtn.textContent = '▶';
+            currentBtn.classList.remove('playing');
+            currentBtn = null;
+          }
+          if (currentPlayer) {
+            currentPlayer.classList.remove('playing');
+            currentPlayer = null;
+          }
+        }
+      }, 50);
+    }
+
+    document.querySelectorAll('.trecho-play-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const player = btn.closest('.trecho-player');
+        const src = player.dataset.src;
+        const startTime = parseFloat(player.dataset.start);
+        const endTime = parseFloat(player.dataset.end);
+
+        // Se clicou no mesmo que tá tocando, para
+        if (currentBtn === btn && currentAudio) {
+          stopCurrent();
+          return;
+        }
+
+        // Para o anterior
+        if (currentAudio) {
+          currentAudio.pause();
+          if (currentBtn) {
+            currentBtn.textContent = '▶';
+            currentBtn.classList.remove('playing');
+          }
+          if (currentPlayer) {
+            currentPlayer.classList.remove('playing');
+          }
+          clearInterval(fadeInterval);
+        }
+
+        // Cria novo audio
+        const audio = new Audio(src);
+        audio.currentTime = startTime;
+        audio.volume = 0;
+        currentAudio = audio;
+        currentBtn = btn;
+        currentPlayer = player;
+        btn.textContent = '⏸';
+        btn.classList.add('playing');
+        player.classList.add('playing');
+
+        audio.play().then(() => {
+          // Fade in
+          fadeInterval = setInterval(() => {
+            if (audio.volume < 0.95) {
+              audio.volume = Math.min(1, audio.volume + 0.05);
+            } else {
+              audio.volume = 1;
+              clearInterval(fadeInterval);
+            }
+          }, 50);
+        });
+
+        // Controle de loop com fade out/in
+        let fadingOut = false;
+        let loopCheck = setInterval(() => {
+          if (!currentAudio || currentAudio !== audio) {
+            clearInterval(loopCheck);
+            return;
+          }
+          const timeLeft = endTime - audio.currentTime;
+
+          // Fade out nos últimos 3 segundos
+          if (timeLeft <= 3 && !fadingOut) {
+            fadingOut = true;
+            clearInterval(fadeInterval);
+            fadeInterval = setInterval(() => {
+              if (audio.volume > 0.02) {
+                audio.volume = Math.max(0, audio.volume - 0.03);
+              } else {
+                audio.volume = 0;
+                clearInterval(fadeInterval);
+              }
+            }, 40);
+          }
+
+          // Volta pro início do trecho
+          if (audio.currentTime >= endTime || timeLeft <= 0.1) {
+            fadingOut = false;
+            audio.currentTime = startTime;
+            audio.volume = 0;
+            // Fade in do loop
+            clearInterval(fadeInterval);
+            fadeInterval = setInterval(() => {
+              if (audio.volume < 0.95) {
+                audio.volume = Math.min(1, audio.volume + 0.05);
+              } else {
+                audio.volume = 1;
+                clearInterval(fadeInterval);
+              }
+            }, 50);
+          }
+        }, 100);
+      });
+    });
+
   </script>
 </body>
 </html>
